@@ -1,0 +1,133 @@
+2026-07-05 01:02:56.769 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 01:02:56.771 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 13:54:39.448 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 21072 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 13:54:39.474 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 13:54:43.692 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 13:54:43.713 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 13:54:43.714 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 13:54:44.028 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 13:54:44.028 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4362 ms
+2026-07-05 13:54:44.952 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 13:54:45.835 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 13:54:46.484 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 13:54:46.490 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 10.086 seconds (process running for 14.057)
+2026-07-05 13:55:23.392 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 13:55:23.406 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 13:55:33.448 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 21224 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 13:55:33.474 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 13:55:36.861 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 13:55:36.871 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 13:55:36.871 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 13:55:37.159 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 13:55:37.160 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3528 ms
+2026-07-05 13:55:38.221 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 13:55:38.934 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 13:55:39.583 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 13:55:39.602 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 8.667 seconds (process running for 11.56)
+2026-07-05 14:23:02.339 [http-nio-8080-exec-2] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05 14:23:02.340 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-05 14:23:02.341 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-05 14:23:02.723 [http-nio-8080-exec-2] WARN  c.q.x.auth.exception.GlobalExceptionHandler - /test2 request fail, errorCode: AUTH-10001, errorMessage: nickName 昵称不能为空，当前值：' '; 
+2026-07-05 16:40:47.409 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 16:40:47.411 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 16:41:41.582 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 21404 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 16:41:41.600 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 16:41:44.647 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 16:41:44.663 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 16:41:44.663 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 16:41:44.866 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 16:41:44.866 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3087 ms
+2026-07-05 16:41:45.908 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 16:41:46.827 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 16:41:47.493 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 16:41:47.506 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 8.406 seconds (process running for 10.868)
+2026-07-05 17:08:01.934 [http-nio-8080-exec-3] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05 17:08:01.934 [http-nio-8080-exec-3] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-05 17:08:01.940 [http-nio-8080-exec-3] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2026-07-05 17:08:08.648 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 17:08:08.649 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 17:08:18.716 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 19036 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 17:08:18.963 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 17:08:31.095 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 17:08:31.175 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 17:08:31.175 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 17:08:32.025 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 17:08:32.025 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 12282 ms
+2026-07-05 17:08:35.147 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 17:08:36.020 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 17:08:36.768 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 17:08:36.818 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 24.322 seconds (process running for 26.796)
+2026-07-05 17:08:57.159 [http-nio-8080-exec-2] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05 17:08:57.159 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-05 17:08:57.167 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2026-07-05 17:08:57.274 [http-nio-8080-exec-2] WARN  o.s.core.LocalVariableTableParameterNameDiscoverer - Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.quanxiaoha.xiaohashu.auth.controller.TestController
+2026-07-05 17:08:57.282 [http-nio-8080-exec-2] INFO  c.q.xiaohashu.auth.controller.TestController - username: jack, password: 123456
+2026-07-05 17:18:00.452 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 17:18:00.468 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 17:18:10.212 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 10960 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 17:18:10.312 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 17:18:13.662 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 17:18:13.687 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 17:18:13.687 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 17:18:13.946 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 17:18:13.946 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3308 ms
+2026-07-05 17:18:15.044 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 17:18:15.922 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 17:18:16.539 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 17:18:16.545 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 8.391 seconds (process running for 11.322)
+2026-07-05 17:18:21.639 [http-nio-8080-exec-2] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05 17:18:21.639 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-05 17:18:21.647 [http-nio-8080-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2026-07-05 17:18:21.771 [http-nio-8080-exec-2] INFO  c.q.xiaohashu.auth.controller.TestController - username: jack, password: 123456
+2026-07-05 17:36:16.847 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 17:36:16.848 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 17:36:26.749 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 4688 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 17:36:26.752 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 17:36:29.653 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 17:36:29.721 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 17:36:29.721 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 17:36:30.067 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 17:36:30.067 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3176 ms
+2026-07-05 17:36:30.871 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 17:36:31.538 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 17:36:32.080 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 17:36:32.088 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 7.779 seconds (process running for 10.625)
+2026-07-05 17:36:57.762 [http-nio-8080-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05 17:36:57.769 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-05 17:36:57.769 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2026-07-05 17:36:57.886 [http-nio-8080-exec-1] INFO  c.q.xiaohashu.auth.controller.TestController - username: jack, password: 123456
+2026-07-05 17:37:16.347 [http-nio-8080-exec-2] INFO  c.q.xiaohashu.auth.controller.TestController - username: admin, password: 123456
+2026-07-05 22:37:35.327 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 22:37:35.330 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 22:37:53.401 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 3508 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 22:37:53.406 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 22:37:55.806 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-05 22:37:55.810 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-05 22:37:55.843 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 14 ms. Found 0 Redis repository interfaces.
+2026-07-05 22:37:59.102 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 22:37:59.194 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 22:37:59.194 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 22:37:59.704 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 22:37:59.705 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 5914 ms
+2026-07-05 22:38:00.846 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 22:38:01.660 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 22:38:02.913 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 22:38:02.931 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 16.1 seconds (process running for 18.81)
+2026-07-05 23:04:44.679 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 23:04:44.680 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
+2026-07-05 23:05:03.336 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Starting XiaohashuAuthApplication using Java 17.0.18 with PID 12448 (D:\JAVA_Code\xiaohashu\xiaohashu-auth\target\classes started by HJYS in D:\JAVA_Code\xiaohashu)
+2026-07-05 23:05:03.451 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - The following 1 profile is active: "dev"
+2026-07-05 23:05:10.723 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-05 23:05:10.738 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-05 23:05:10.913 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 123 ms. Found 0 Redis repository interfaces.
+2026-07-05 23:05:19.184 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-07-05 23:05:19.253 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-05 23:05:19.255 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.5]
+2026-07-05 23:05:20.244 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-05 23:05:20.250 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 15921 ms
+2026-07-05 23:05:26.806 [main] INFO  c.a.d.s.b.a.DruidDataSourceAutoConfigure - Init DruidDataSource
+2026-07-05 23:05:27.682 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2026-07-05 23:05:29.049 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-07-05 23:05:29.070 [main] INFO  c.q.xiaohashu.auth.XiaohashuAuthApplication - Started XiaohashuAuthApplication in 32.962 seconds (process running for 35.769)
+2026-07-05 23:05:29.179 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closing ...
+2026-07-05 23:05:29.202 [SpringApplicationShutdownHook] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} closed
