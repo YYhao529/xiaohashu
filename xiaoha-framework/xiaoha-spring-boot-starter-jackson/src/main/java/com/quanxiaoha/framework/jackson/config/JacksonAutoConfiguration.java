@@ -14,8 +14,8 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.YearMonthSerializer;
 import com.quanxiaoha.framework.common.constant.DateConstants;
 import com.quanxiaoha.framework.common.util.JsonUtils;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +23,10 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.TimeZone;
 
-@Configuration
+/**
+ * Jackson 自动配置类
+ */
+@AutoConfiguration
 public class JacksonAutoConfiguration {
 
     @Bean

@@ -1,0 +1,5 @@
+server:
+  port: 8081 # 项目启动的端口
+
+storage:
+  type: aliyun  # 对象存储类型
