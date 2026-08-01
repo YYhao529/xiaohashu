@@ -28,6 +28,8 @@
         <module>xiaohashu-oss</module>
         <!-- 用户服务 -->
         <module>xiaohashu-user</module>
+        <!-- KV 键值存储服务 -->
+        <module>xiaohashu-kv</module>
     </modules>
 
     <properties>
@@ -278,6 +280,12 @@
             <dependency>
                 <groupId>com.quanxiaoha</groupId>
                 <artifactId>xiaohashu-user-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quanxiaoha</groupId>
+                <artifactId>xiaohashu-kv-api</artifactId>
                 <version>${revision}</version>
             </dependency>
         </dependencies>

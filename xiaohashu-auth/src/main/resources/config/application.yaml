@@ -20,3 +20,5 @@ sa-token:
   # 是否输出操作日志
   is-log: true
 
+alarm:
+  type: sms # 告急类型
