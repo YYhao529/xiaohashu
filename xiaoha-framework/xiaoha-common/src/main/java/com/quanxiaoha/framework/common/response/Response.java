@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 响应参数工具类
+ */
 @Data
 public class Response<T> implements Serializable {
     // 是否成功，默认为 true

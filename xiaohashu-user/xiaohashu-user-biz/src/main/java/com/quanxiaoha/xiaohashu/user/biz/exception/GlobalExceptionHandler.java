@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Response<Object> handleBizException(HttpServletRequest request, BizException e) {
         log.warn("{} request fail, errorCode: {}, errorMessage: {}", request.getRequestURI(), e.getErrorCode(), e.getErrorMessage());
-        return Response.fail(e.getErrorMessage());
+        return Response.fail(e);
     }
 
     /**

@@ -7,6 +7,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ * 自定义线程池
+ */
 @Configuration
 public class ThreadPoolConfig {
 

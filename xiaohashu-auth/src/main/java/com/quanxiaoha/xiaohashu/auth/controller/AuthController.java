@@ -25,6 +25,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ApiOperationLog(description = "用户退出登录")
+
     public Response<?> logout(){
         return authService.logout();
     }

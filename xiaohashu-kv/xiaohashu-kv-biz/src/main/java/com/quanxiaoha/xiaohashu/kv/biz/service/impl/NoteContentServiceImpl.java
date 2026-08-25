@@ -29,14 +29,14 @@ public class NoteContentServiceImpl implements NoteContentService {
 
     @Override
     public Response<?> addNoteContent(AddNoteContentReqDTO addNoteContentReqDTO) {
-        // 笔记 ID
-        Long noteId = addNoteContentReqDTO.getNoteId();
+        // 笔记 UUID
+        String uuid = addNoteContentReqDTO.getUuid();
         // 笔记内容
         String content = addNoteContentReqDTO.getContent();
 
         // 构建数据库 DO 实体类
         NoteContentDO noteContentDO = NoteContentDO.builder()
-                .id(UUID.randomUUID())
+                .id(UUID.fromString(uuid))
                 .content(content)
                 .build();
 
@@ -48,20 +48,20 @@ public class NoteContentServiceImpl implements NoteContentService {
 
     @Override
     public Response<FindNoteContentRspDTO> findNoteContent(FindNoteContentReqDTO findNoteContentReqDTO) {
-        // 笔记 ID
-        String noteId = findNoteContentReqDTO.getNoteId();
-        // 根据笔记 ID 查询笔记内容
-        Optional<NoteContentDO> option = noteContentRepository.findById(UUID.fromString(noteId));
+        // 笔记 UUID
+        String uuid = findNoteContentReqDTO.getUuid();
+        // 根据笔记 UUID 查询笔记内容
+        Optional<NoteContentDO> option = noteContentRepository.findById(UUID.fromString(uuid));
 
         // 若笔记内容不存在
-        if(!option.isPresent()){
+        if(option.isEmpty()){
            throw new BizException(ResponseCodeEnum.NOTE_CONTENT_NOT_FOUND);
         }
 
         NoteContentDO noteContentDO = option.get();
         // 构建返参 DTO
         FindNoteContentRspDTO findNoteContentRspDTO = FindNoteContentRspDTO.builder()
-                .noteId(noteContentDO.getId())
+                .uuid(noteContentDO.getId())
                 .content(noteContentDO.getContent())
                 .build();
 
@@ -70,10 +70,10 @@ public class NoteContentServiceImpl implements NoteContentService {
 
     @Override
     public Response<?> deleteNoteContent(DeleteNoteContentReqDTO deleteNoteContentReqDTO) {
-        // 笔记 ID
-        String noteId = deleteNoteContentReqDTO.getNoteId();
-        // 根据笔记 ID 删除笔记内容
-        noteContentRepository.deleteById(UUID.fromString(noteId));
+        // 笔记 UUID
+        String uuid = deleteNoteContentReqDTO.getUuid();
+        // 根据笔记 UUID 删除笔记内容
+        noteContentRepository.deleteById(UUID.fromString(uuid));
 
         return Response.success();
     }

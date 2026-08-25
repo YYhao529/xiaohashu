@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Response<Object> handleBizException(HttpServletRequest request, BizException e) {
         log.warn("{} request fail, errorCode: {}, errorMessage: {}", request.getRequestURI(), e.getErrorCode(), e.getErrorMessage());
-        return Response.fail(e.getErrorMessage());
+        return Response.fail(e);
     }
 
     /**
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
-    public Response<Object> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e){
+    public Response<Object> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         // 参数错误异常码
         String errorCode = ResponseCodeEnum.PARAM_NOT_VALID.getErrorCode();
 
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Response<Object> handleOtherException(HttpServletRequest request, Exception e) {
-        log.warn("{} request error, ",request.getRequestURI(),e);
+        log.warn("{} request error, ", request.getRequestURI(), e);
         return Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
     }
 }
