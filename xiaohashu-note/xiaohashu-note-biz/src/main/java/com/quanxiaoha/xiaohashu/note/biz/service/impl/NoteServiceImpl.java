@@ -709,16 +709,6 @@ public class NoteServiceImpl implements NoteService {
         // 1. 校验笔记是否真实存在
         checkNoteIsExist(noteId);
 
-         /*
-         首先查看布隆过滤器是否存在：
-            如果布隆过滤器存在，判断是否存在该笔记 ID
-                如果不存在，说明没有点赞过该笔记，直接抛出异常
-                如果存在，可能会存在误判，但是可以容忍
-            如果布隆过滤器不存在，查询数据库，并异步初始化布隆过滤器
-                若数据库中存在点赞记录，直接删除数据库中的记录
-                若不存在，说明用户没有点赞过该笔记，直接抛出异常
-         */
-
         // 2. 校验笔记是否被点赞过
         // 当前登录用户 ID
         Long userId = LoginUserContextHolder.getUserId();
@@ -785,6 +775,45 @@ public class NoteServiceImpl implements NoteService {
                 log.error("==> 【笔记取消点赞】MQ 发送异常: ", e);
             }
         });
+
+        return Response.success();
+    }
+
+    /**
+     * 收藏笔记
+     * @param collectNoteReqVO 收藏笔记请求参数
+     * @return 成功响应
+     */
+    @Override
+    public Response<?> collectNote(CollectNoteReqVO collectNoteReqVO) {
+        // 笔记 ID
+        Long noteId = collectNoteReqVO.getId();
+        // 当前登录用户 ID
+        Long userId = LoginUserContextHolder.getUserId();
+
+        // 1. 校验笔记是否真实存在
+        checkNoteIsExist(noteId);
+
+        // 2. 判断目标笔记，是否已经收藏过
+        // 构建布隆过滤器 Key
+        String bloomUserNoteCollectListKey = RedisKeyConstants.buildBloomUserNoteCollectListKey(userId);
+
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        // Lua 脚本路径
+        script.setScriptSource(new ResourceScriptSource(new ClassPathResource("/lua/bloom_note_collect_check.lua")));
+        // 返回值类型
+        script.setResultType(Long.class);
+
+        // 执行 Lua 脚本，拿到返回结果
+        Long result = redisTemplate.execute(script, List.of(bloomUserNoteCollectListKey), noteId);
+
+        // 判断返回结果
+
+
+        // TODO：3. 更新用户 ZSET 收藏列表
+
+        // TODO：4. 发送 MQ, 数据更新落库
+
 
         return Response.success();
     }

@@ -208,6 +208,29 @@ public class RabbitMQConfig {
                 .with(MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY);
     }
 
+    // ---------------------- 笔记点赞数落库消息 ----------------------
+    // 笔记点赞数落库消息交换机
+    @Bean
+    public DirectExchange countLikeNoteToDbExchange() {
+        return new DirectExchange(MQConstants.COUNT_LIKE_NOTE_TO_DB_EXCHANGE);
+    }
+
+    // 笔记点赞数落库消息队列
+    @Bean
+    public Queue countLikeNoteToDbQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_LIKE_NOTE_TO_DB_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 笔记点赞数落库消息绑定
+    @Bean
+    public Binding countLikeNoteToDbBinding(Queue countLikeNoteToDbQueue, DirectExchange countLikeNoteToDbExchange) {
+        return BindingBuilder.bind(countLikeNoteToDbQueue).to(countLikeNoteToDbExchange)
+                .with(MQConstants.COUNT_LIKE_NOTE_TO_DB_ROUTING_KEY);
+    }
+
     // ---------------------- 点赞、取消点赞笔记落库消息 ----------------------
     // 点赞、取消点赞笔记落库消息交换机
     @Bean

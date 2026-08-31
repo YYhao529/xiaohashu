@@ -49,4 +49,9 @@ public interface NoteService {
      * 取消点赞笔记
      */
     Response<?> unlikeNote(UnlikeNoteReqVO unlikeNoteReqVO);
+
+    /**
+     * 收藏笔记
+     */
+    Response<?> collectNote(CollectNoteReqVO collectNoteReqVO);
 }

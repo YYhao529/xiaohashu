@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LikeUnlikeNoteMqDTO {
+public class CountLikeUnlikeNoteMqDTO {
 
     private Long userId;
 

@@ -2,6 +2,7 @@ package com.quanxiaoha.xiaohashu.note.biz.consumer;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
+import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteLikeDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteLikeDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.enums.LikeUnlikeNoteTypeEnum;
@@ -81,7 +82,7 @@ public class LikeUnlikeNoteConsumer {
         threadPoolTaskExecutor.submit(() -> {
             try {
                 rabbitTemplate.convertAndSend(MQConstants.COUNT_LIKE_NOTE_EXCHANGE,
-                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, likeUnlikeNoteMqDTO);
+                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, JsonUtils.toJsonString(likeUnlikeNoteMqDTO));
                 log.info("==> 【计数: 笔记点赞】MQ 发送成功");
             } catch (Exception e) {
                 log.error("==> 【计数: 笔记点赞】MQ 发送异常: ", e);
@@ -110,7 +111,7 @@ public class LikeUnlikeNoteConsumer {
         threadPoolTaskExecutor.submit(() -> {
             try {
                 rabbitTemplate.convertAndSend(MQConstants.COUNT_LIKE_NOTE_EXCHANGE,
-                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, likeUnlikeNoteMqDTO);
+                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, JsonUtils.toJsonString(likeUnlikeNoteMqDTO));
                 log.info("==> 【计数: 笔记取消点赞】MQ 发送成功");
             } catch (Exception e) {
                 log.error("==> 【计数: 笔记取消点赞】MQ 发送异常: ", e);
