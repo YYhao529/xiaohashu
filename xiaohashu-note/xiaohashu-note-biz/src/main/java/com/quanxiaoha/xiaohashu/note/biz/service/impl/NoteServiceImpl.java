@@ -741,17 +741,50 @@ public class NoteServiceImpl implements NoteService {
         switch (noteUnlikeLuaResultEnum){
             // 布隆过滤器不存在
             case NOT_EXIST:
-                // TODO
+                // 异步初始化布隆过滤器
+                threadPoolTaskExecutor.submit(()->{
+                    // 保底1天+随机秒数
+                    long expireSeconds = 60*60*24 + RandomUtil.randomInt(60*60*24);
+                    batchAddNoteLike2BloomAndExpire(userId,expireSeconds,bloomUserNoteLikeListKey);
+                });
+
+                // 查询该笔记是否被点赞过
+                int count = noteLikeDOMapper.selectCountByUserIdAndNoteId(userId, noteId);
+
+                // 若数据库中不存在点赞记录，说明用户没有点赞过该笔记，直接抛出异常
+                if (count == 0) {
+                    throw new BizException(ResponseCodeEnum.NOTE_NOT_LIKED);
+                }
+
                 break;
             // 布隆过滤器校验目标笔记未被点赞（判断绝对正确）
             case NOTE_NOT_LIKED:
                 throw new BizException(ResponseCodeEnum.NOTE_NOT_LIKED);
         }
 
-
         // 3. 删除 ZSET 中已点赞的笔记 ID
+        String userNoteLikeZSetKey = RedisKeyConstants.buildUserNoteLikeZSetKey(userId);
+        redisTemplate.opsForZSet().remove(userNoteLikeZSetKey, noteId);
 
-        // TODO: 4. 发送 MQ, 数据更新落库
+        // 4. 发送 MQ, 数据更新落库
+        // 构建消息体 DTO
+        LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO = LikeUnlikeNoteMqDTO.builder()
+                .userId(userId)
+                .noteId(noteId)
+                .type(LikeUnlikeNoteTypeEnum.UNLIKE.getCode())
+                .createTime(LocalDateTime.now())
+                .build();
+
+        // 异步发送 MQ 消息，提升接口响应速度
+        threadPoolTaskExecutor.submit(()->{
+            try {
+                rabbitTemplate.convertAndSend(MQConstants.LIKE_UNLIKE_NOTE_TO_DB_EXCHANGE,
+                        MQConstants.LIKE_UNLIKE_NOTE_TO_DB_ROUTING_KEY, likeUnlikeNoteMqDTO);
+                log.info("==> 【笔记取消点赞】MQ 发送成功");
+            } catch (AmqpException e) {
+                log.error("==> 【笔记取消点赞】MQ 发送异常: ", e);
+            }
+        });
 
         return Response.success();
     }
@@ -808,7 +841,7 @@ public class NoteServiceImpl implements NoteService {
      */
     private void batchAddNoteLike2BloomAndExpire(Long userId, long expireSeconds, String bloomUserNoteLikeListKey) {
         try {
-            // 异步全量同步一下，并设置过期时间
+            // 全量同步，并设置过期时间
             List<NoteLikeDO> noteLikeDOS = noteLikeDOMapper.selectByUserId(userId);
 
             if (CollUtil.isNotEmpty(noteLikeDOS)) {

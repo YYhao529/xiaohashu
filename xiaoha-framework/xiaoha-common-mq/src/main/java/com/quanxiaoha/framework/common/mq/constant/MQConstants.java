@@ -85,6 +85,16 @@ public final class MQConstants {
     // 粉丝数落库消息路由键
     public static final String COUNT_FANS_TO_DB_ROUTING_KEY = "count.fans.2db";
 
+    // ---------------------- 笔记点赞数统计消息 ----------------------
+    // 笔记点赞数统计消息交换机
+    public static final String COUNT_LIKE_NOTE_EXCHANGE = COUNT_SERVICE_PREFIX + "like.note.direct";
+
+    // 笔记点赞数统计消息队列
+    public static final String COUNT_LIKE_NOTE_QUEUE = COUNT_SERVICE_PREFIX + "like.note.queue";
+
+    // 笔记点赞数统计消息路由键
+    public static final String COUNT_LIKE_NOTE_ROUTING_KEY = "count.like.note";
+
     // ---------------------- 点赞、取消点赞笔记落库消息 ----------------------
     // 点赞、取消点赞笔记落库消息交换机
     public static final String LIKE_UNLIKE_NOTE_TO_DB_EXCHANGE = NOTE_SERVICE_PREFIX + "like.unlike.2db.direct";

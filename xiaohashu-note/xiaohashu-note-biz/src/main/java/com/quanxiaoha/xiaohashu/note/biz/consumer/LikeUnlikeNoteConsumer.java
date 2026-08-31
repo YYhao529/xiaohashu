@@ -6,9 +6,12 @@ import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteLikeDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteLikeDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.enums.LikeUnlikeNoteTypeEnum;
 import com.quanxiaoha.xiaohashu.note.biz.model.dto.LikeUnlikeNoteMqDTO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -22,6 +25,10 @@ public class LikeUnlikeNoteConsumer {
 
     @Autowired
     private NoteLikeDOMapper noteLikeMapper;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     // 每秒创建 5000 个令牌
     private RateLimiter rateLimiter = RateLimiter.create(5000);
@@ -68,13 +75,47 @@ public class LikeUnlikeNoteConsumer {
         // 添加或更新笔记点赞记录
         int count = noteLikeMapper.insertOrUpdate(noteLikeDO);
 
-        // TODO：发送计数 MQ
+        if (count == 0) return;
+
+        // 异步发送 MQ 消息
+        threadPoolTaskExecutor.submit(() -> {
+            try {
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_LIKE_NOTE_EXCHANGE,
+                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, likeUnlikeNoteMqDTO);
+                log.info("==> 【计数: 笔记点赞】MQ 发送成功");
+            } catch (Exception e) {
+                log.error("==> 【计数: 笔记点赞】MQ 发送异常: ", e);
+            }
+        });
     }
 
     /**
      * 笔记取消点赞
      */
     private void handleUnlikeNoteMessage(LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO) {
+        // 构造 NoteLikeDO 对象
+        NoteLikeDO noteLikeDO = NoteLikeDO.builder()
+                .userId(likeUnlikeNoteMqDTO.getUserId())
+                .noteId(likeUnlikeNoteMqDTO.getNoteId())
+                .createTime(likeUnlikeNoteMqDTO.getCreateTime())
+                .status(likeUnlikeNoteMqDTO.getType())
+                .build();
 
+        // 取消点赞：记录更新
+        int count = noteLikeMapper.update2UnlikeByUserIdAndNoteId(noteLikeDO);
+
+        if (count == 0) return;
+
+        // 异步发送 MQ 消息
+        threadPoolTaskExecutor.submit(() -> {
+            try {
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_LIKE_NOTE_EXCHANGE,
+                        MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY, likeUnlikeNoteMqDTO);
+                log.info("==> 【计数: 笔记取消点赞】MQ 发送成功");
+            } catch (Exception e) {
+                log.error("==> 【计数: 笔记取消点赞】MQ 发送异常: ", e);
+            }
+        });
     }
+
 }

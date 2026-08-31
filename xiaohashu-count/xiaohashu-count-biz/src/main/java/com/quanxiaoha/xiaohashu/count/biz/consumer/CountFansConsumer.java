@@ -32,10 +32,8 @@ public class CountFansConsumer {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
     @Autowired
     private RabbitTemplate rabbitTemplate;
-
     @Resource(name = "taskExecutor")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
