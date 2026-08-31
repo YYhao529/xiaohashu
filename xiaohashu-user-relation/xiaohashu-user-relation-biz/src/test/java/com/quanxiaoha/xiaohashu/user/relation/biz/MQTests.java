@@ -1,7 +1,8 @@
 package com.quanxiaoha.xiaohashu.user.relation.biz;
 
-import com.quanxiaoha.xiaohashu.user.relation.biz.constant.MQConstants;
-import com.quanxiaoha.xiaohashu.user.relation.biz.domain.dataobject.FollowingDO;
+import com.quanxiaoha.framework.common.mq.constant.MQConstants;
+import com.quanxiaoha.xiaohashu.user.relation.biz.enums.FollowUnfollowTypeEnum;
+import com.quanxiaoha.xiaohashu.user.relation.biz.model.dto.CountFollowUnfollowMqDTO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.model.dto.FollowUserMqDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ class MQTests {
      * 测试：发送 1000 条 MQ
      */
     @Test
-    void testBatchSendMQ(){
+    void testBatchSendMQ() {
         for (long i = 1; i <= 10000; i++) {
             // 构建消息体 DTO
             FollowUserMqDTO followUserMqDTO = FollowUserMqDTO.builder()
@@ -41,7 +42,7 @@ class MQTests {
             // 发送消息
             threadPoolTaskExecutor.execute(() -> {
                 try {
-                    rabbitTemplate.convertAndSend(MQConstants.FOLLOW_MESSAGE_EXCHANGE,
+                    rabbitTemplate.convertAndSend(MQConstants.FOLLOW_UNFOLLOW_MESSAGE_EXCHANGE,
                             MQConstants.FOLLOW_MESSAGE_ROUTING_KEY, followUserMqDTO);
                     log.info("==> MQ 发送成功");
                 } catch (AmqpException e) {
@@ -50,4 +51,44 @@ class MQTests {
             });
         }
     }
+
+    /**
+     * 测试：发送计数 MQ, 以统计粉丝数
+     */
+    @Test
+    void testSendCountFollowUnfollowMQ() {
+        // 循环发送 3200 条 MQ
+        for (long i = 0; i < 3200; i++) {
+            // 构建消息体 DTO
+            CountFollowUnfollowMqDTO countFollowUnfollowMqDTO = CountFollowUnfollowMqDTO.builder()
+                    .userId(i + 1) // 关注者用户 ID
+                    .targetUserId(27L) // 目标用户
+                    .type(FollowUnfollowTypeEnum.FOLLOW.getCode())
+                    .build();
+
+            // 发送 MQ 通知计数服务：统计粉丝数
+            threadPoolTaskExecutor.submit(() -> {
+                try {
+                    // 发送 MQ 通知计数服务：统计关注数
+                    rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                            MQConstants.COUNT_FOLLOWINGS_ROUTING_KEY, countFollowUnfollowMqDTO);
+                    log.info("==> 【计数服务：关注数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
+                } catch (AmqpException e) {
+                    log.error("==> 【计数服务：关注数】MQ 发送异常: ", e);
+                }
+
+                try {
+                    // 发送 MQ 通知计数服务：统计粉丝数
+                    rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                            MQConstants.COUNT_FANS_ROUTING_KEY, countFollowUnfollowMqDTO);
+                    log.info("==> 【计数服务：粉丝数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
+                } catch (AmqpException e) {
+                    log.error("==> 【计数服务：粉丝数】MQ 发送异常: ", e);
+                }
+            });
+        }
+    }
+
+
+
 }

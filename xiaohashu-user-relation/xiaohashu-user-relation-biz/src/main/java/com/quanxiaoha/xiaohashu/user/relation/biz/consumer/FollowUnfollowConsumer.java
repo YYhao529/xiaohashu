@@ -1,22 +1,28 @@
 package com.quanxiaoha.xiaohashu.user.relation.biz.consumer;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.framework.common.util.DateUtils;
-import com.quanxiaoha.xiaohashu.user.relation.biz.constant.MQConstants;
 import com.quanxiaoha.xiaohashu.user.relation.biz.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.dataobject.FansDO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.dataobject.FollowingDO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.mapper.FansDOMapper;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.mapper.FollowingDOMapper;
+import com.quanxiaoha.xiaohashu.user.relation.biz.enums.FollowUnfollowTypeEnum;
+import com.quanxiaoha.xiaohashu.user.relation.biz.model.dto.CountFollowUnfollowMqDTO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.model.dto.FollowUserMqDTO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.model.dto.UnfollowUserMqDTO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -37,11 +43,15 @@ public class FollowUnfollowConsumer {
     @Autowired
     private FansDOMapper fansDOMapper;
     @Autowired
-    private RateLimiter rateLimiter;
+    private RateLimiter rateLimiter = RateLimiter.create(5000);
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     /**
      * 关注用户消费者
@@ -92,6 +102,16 @@ public class FollowUnfollowConsumer {
         long timestamp = DateUtils.localDateTime2Timestamp(createTime);
         // 执行 Lua 脚本
         redisTemplate.execute(script, List.of(key), userId, timestamp);
+
+        // 构造 CountFollowUnfollowMqDTO
+        CountFollowUnfollowMqDTO countFollowUnfollowMqDTO = CountFollowUnfollowMqDTO.builder()
+                .userId(userId)
+                .targetUserId(followUserId)
+                .type(FollowUnfollowTypeEnum.FOLLOW.getCode())
+                .build();
+
+        // 发送 MQ
+        sendMq(countFollowUnfollowMqDTO);
     }
 
     /**
@@ -125,5 +145,40 @@ public class FollowUnfollowConsumer {
         String unfollowRedisKey = RedisKeyConstants.buildUserFansKey(unfollowUserId);
         // 删除指定粉丝
         redisTemplate.opsForZSet().remove(unfollowRedisKey, userId);
+
+        // 构造 CountFollowUnfollowMqDTO
+        CountFollowUnfollowMqDTO countFollowUnfollowMqDTO = CountFollowUnfollowMqDTO.builder()
+                .userId(userId)
+                .targetUserId(unfollowUserId)
+                .type(FollowUnfollowTypeEnum.UNFOLLOW.getCode())
+                .build();
+
+        // 发送 MQ
+        sendMq(countFollowUnfollowMqDTO);
+    }
+
+    /**
+     * 发送 MQ 通知计数服务
+     */
+    private void sendMq(CountFollowUnfollowMqDTO countFollowUnfollowMqDTO) {
+        threadPoolTaskExecutor.submit(() -> {
+            try {
+                // 发送 MQ 通知计数服务：统计关注数
+                rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                        MQConstants.COUNT_FOLLOWINGS_ROUTING_KEY, countFollowUnfollowMqDTO);
+                log.info("==> 【计数服务：关注数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
+            } catch (AmqpException e) {
+                log.error("==> 【计数服务：关注数】MQ 发送异常: ", e);
+            }
+
+            try {
+                // 发送 MQ 通知计数服务：统计粉丝数
+                rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                        MQConstants.COUNT_FANS_ROUTING_KEY, countFollowUnfollowMqDTO);
+                log.info("==> 【计数服务：粉丝数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
+            } catch (AmqpException e) {
+                log.error("==> 【计数服务：粉丝数】MQ 发送异常: ", e);
+            }
+        });
     }
 }

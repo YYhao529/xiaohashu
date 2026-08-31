@@ -11,6 +11,11 @@ public interface NoteDOMapper {
 
     NoteDO selectByPrimaryKey(Long id);
 
+    /**
+     * 根据笔记 ID 查询笔记是否存在
+     */
+    int selectCountByNoteId(Long noteId);
+
     int updateByPrimaryKeySelective(NoteDO record);
 
     int updateByPrimaryKey(NoteDO record);

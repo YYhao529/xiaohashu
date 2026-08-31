@@ -39,4 +39,14 @@ public interface NoteService {
      * 笔记置顶/取消置顶
      */
     Response<?> topNote(TopNoteReqVO topNoteReqVO);
+
+    /**
+     * 点赞笔记
+     */
+    Response<?> likeNote(LikeNoteReqVO likeNoteReqVO);
+
+    /**
+     * 取消点赞笔记
+     */
+    Response<?> unlikeNote(UnlikeNoteReqVO unlikeNoteReqVO);
 }

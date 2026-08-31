@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaoha-framework/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaoha-framework/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-common-mq/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-common-mq/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-spring-boot-starter-biz-context/src/main/java" charset="UTF-8" />
@@ -15,6 +17,12 @@
     <file url="file://$PROJECT_DIR$/xiaoha-framework/xiaoha-spring-boot-starter-jackson/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaohashu-auth/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaohashu-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/xiaohashu-count-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/xiaohashu-count-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/xiaohashu-count-biz/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xiaohashu-count/xiaohashu-count-biz/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaohashu-distributed-id-generator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaohashu-distributed-id-generator/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xiaohashu-distributed-id-generator/xiaohashu-distributed-id-generator-api/src/main/java" charset="UTF-8" />

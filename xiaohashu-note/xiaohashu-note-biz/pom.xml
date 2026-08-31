@@ -112,10 +112,10 @@
             <artifactId>caffeine</artifactId>
         </dependency>
 
-        <!-- Spring Amqp -->
+        <!-- 平台通用 MQ 模块 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <groupId>com.quanxiaoha</groupId>
+            <artifactId>xiaoha-common-mq</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,6 @@
 package com.quanxiaoha.xiaohashu.note.biz.consumer;
 
-import com.quanxiaoha.xiaohashu.note.biz.constant.MQConstants;
+import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.xiaohashu.note.biz.constant.RedisKeyConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

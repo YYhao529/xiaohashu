@@ -1,11 +1,15 @@
 package com.quanxiaoha.framework.common.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 /**
  * JSON 工具类
@@ -21,10 +25,10 @@ public class JsonUtils {
     }
 
     /**
-     *  初始化：统一使用 Spring Boot 个性化配置的 ObjectMapper
+     * 初始化：统一使用 Spring Boot 个性化配置的 ObjectMapper
      */
     public static void init(ObjectMapper objectMapper) {
-        OBJECT_MAPPER=objectMapper;
+        OBJECT_MAPPER = objectMapper;
     }
 
     /**
@@ -39,11 +43,22 @@ public class JsonUtils {
      * 将 JSON 字符串转换为对象
      */
     @SneakyThrows
-    public static <T> T parseObject(String jsonStr,Class<T> clazz){
-        if (StringUtils.isBlank(jsonStr)){
+    public static <T> T parseObject(String jsonStr, Class<T> clazz) {
+        if (StringUtils.isBlank(jsonStr)) {
             return null;
         }
 
         return OBJECT_MAPPER.readValue(jsonStr, clazz);
+    }
+
+    /**
+     * 将 JSON 字符串转换为 Map
+     */
+    @SneakyThrows
+    public static <K, V> Map<K, V> parseMap(String jsonStr, Class<K> keyType, Class<V> valueType) {
+        MapType mapType = OBJECT_MAPPER.getTypeFactory().constructMapType(Map.class, keyType, valueType);
+
+        // 将 JSON 字符串转换为 Map
+        return OBJECT_MAPPER.readValue(jsonStr, mapType);
     }
 }

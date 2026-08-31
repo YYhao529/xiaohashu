@@ -4,11 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.quanxiaoha.framework.biz.context.holder.LoginUserContextHolder;
 import com.quanxiaoha.framework.common.exception.BizException;
+import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.framework.common.response.PageResponse;
 import com.quanxiaoha.framework.common.response.Response;
 import com.quanxiaoha.framework.common.util.DateUtils;
 import com.quanxiaoha.xiaohashu.user.dto.resp.FindUserByIdRspDTO;
-import com.quanxiaoha.xiaohashu.user.relation.biz.constant.MQConstants;
 import com.quanxiaoha.xiaohashu.user.relation.biz.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.dataobject.FansDO;
 import com.quanxiaoha.xiaohashu.user.relation.biz.domain.dataobject.FollowingDO;
@@ -23,17 +23,11 @@ import com.quanxiaoha.xiaohashu.user.relation.biz.rpc.UserRpcService;
 import com.quanxiaoha.xiaohashu.user.relation.biz.service.RelationService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.units.qual.K;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scripting.support.ResourceScriptSource;
@@ -42,8 +36,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 用户关系服务
@@ -67,6 +59,8 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 关注用户
+     * @param followUserReqVO 关注用户请求参数
+     * @return 成功响应
      */
     @Override
     public Response<?> follow(FollowUserReqVO followUserReqVO) {
@@ -152,7 +146,7 @@ public class RelationServiceImpl implements RelationService {
         // 异步发送 MQ 消息，将关注关系数据同步到其他服务
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.FOLLOW_MESSAGE_EXCHANGE,
+                rabbitTemplate.convertAndSend(MQConstants.FOLLOW_UNFOLLOW_MESSAGE_EXCHANGE,
                         MQConstants.FOLLOW_MESSAGE_ROUTING_KEY, followUserMqDTO);
                 log.info("==> MQ：数据库用户关注同步消息发送成功");
             } catch (AmqpException e) {
@@ -165,6 +159,8 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 取关用户
+     * @param unfollowUserReqVO 取关用户请求参数
+     * @return 成功响应
      */
     @Override
     public Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO) {
@@ -238,7 +234,7 @@ public class RelationServiceImpl implements RelationService {
         // 异步发送 MQ 消息，将取关关系数据同步到数据库、redis 粉丝表
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.UNFOLLOW_MESSAGE_EXCHANGE,
+                rabbitTemplate.convertAndSend(MQConstants.FOLLOW_UNFOLLOW_MESSAGE_EXCHANGE,
                         MQConstants.UNFOLLOW_MESSAGE_ROUTING_KEY, unfollowUserMqDTO);
                 log.info("==> MQ：数据库用户取关同步消息发送成功");
             } catch (AmqpException e) {
@@ -251,6 +247,8 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 查询用户关注列表
+     * @param findFollowingListReqVO 查询用户关注列表请求参数
+     * @return 查询用户关注列表响应参数
      */
     @Override
     public PageResponse<FindFollowingUserRspVO> findFollowingList(FindFollowingListReqVO findFollowingListReqVO) {
@@ -324,6 +322,8 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 查询粉丝列表
+     * @param findFansListReqVO 查询粉丝列表请求参数
+     * @return 查询粉丝列表响应参数
      */
     @Override
     public PageResponse<FindFansUserRspVO> findFansList(FindFansListReqVO findFansListReqVO) {

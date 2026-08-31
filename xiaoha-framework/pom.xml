@@ -26,6 +26,7 @@
         <module>xiaoha-spring-boot-starter-jackson</module>
         <!-- 自定义上下文组件 -->
         <module>xiaoha-spring-boot-starter-biz-context</module>
+        <module>xiaoha-common-mq</module>
     </modules>
 
 </project>

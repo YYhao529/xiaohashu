@@ -22,6 +22,8 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     NOTE_CONTENT_SAVE_FAIL("NOTE-20007", "笔记内容保存失败"),
     NOTE_CANT_VISIBLE_ONLY_ME("NOTE-20008", "此笔记无法修改为仅自己可见"),
     NOTE_CANT_TOP("NOTE-20009", "此笔记无法置顶/取消置顶"),
+    NOTE_ALREADY_LIKED("NOTE-20010", "您已经点赞过该笔记"),
+    NOTE_NOT_LIKED("NOTE-20011", "您未点赞该篇笔记，无法取消点赞"),
     ;
 
     // 异常码
