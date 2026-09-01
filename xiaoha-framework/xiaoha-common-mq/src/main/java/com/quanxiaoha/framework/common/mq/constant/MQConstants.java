@@ -115,6 +115,26 @@ public final class MQConstants {
     // 点赞、取消点赞笔记落库消息路由键
     public static final String LIKE_UNLIKE_NOTE_TO_DB_ROUTING_KEY = "note.like.unlike.2db";
 
+    // ---------------------- 收藏、取消收藏笔记落库消息 ----------------------
+    // 收藏、取消收藏笔记落库消息交换机
+    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE = NOTE_SERVICE_PREFIX + "collect.2db.direct";
+
+    // 收藏、取消收藏笔记落库消息队列
+    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_QUEUE = NOTE_SERVICE_PREFIX + "collect.2db.queue";
+
+    // 收藏、取消收藏笔记落库消息路由键
+    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY = "note.collect.2db";
+
+    // ---------------------- 笔记收藏数统计消息 ----------------------
+    // 笔记收藏数统计消息交换机
+    public static final String COUNT_COLLECT_NOTE_EXCHANGE = COUNT_SERVICE_PREFIX + "collect.note.direct";
+
+    // 笔记收藏数统计消息队列
+    public static final String COUNT_COLLECT_NOTE_QUEUE = COUNT_SERVICE_PREFIX + "collect.note.queue";
+
+    // 笔记收藏数统计消息路由键
+    public static final String COUNT_COLLECT_NOTE_ROUTING_KEY = "count.collect.note";
+
     // ---------------------- 定义专门的队列和交换机，用于接收处理失败的消息 ----------------------
     // 接收失败消息交换机
     public static final String ERROR_MESSAGE_EXCHANGE = "error.direct";

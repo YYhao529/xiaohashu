@@ -54,4 +54,9 @@ public interface NoteService {
      * 收藏笔记
      */
     Response<?> collectNote(CollectNoteReqVO collectNoteReqVO);
+
+    /**
+     * 取消收藏笔记
+     */
+    Response<?> unCollectNote(UnCollectNoteReqVO unCollectNoteReqVO);
 }

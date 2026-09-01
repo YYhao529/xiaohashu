@@ -26,6 +26,11 @@ public final class RedisKeyConstants {
     public static final String BLOOM_USER_NOTE_COLLECT_LIST_KEY = "bloom:note:collects:";
 
     /**
+     * 用户笔记收藏列表 ZSet 前缀
+     */
+    public static final String USER_NOTE_COLLECT_ZSET_KEY = "user:note:collects:";
+
+    /**
      * 构建完整的笔记详情 KEY
      */
     public static String buildNoteDetailKey(Long noteId) {
@@ -51,5 +56,12 @@ public final class RedisKeyConstants {
      */
     public static String buildBloomUserNoteCollectListKey(Long userId) {
         return BLOOM_USER_NOTE_COLLECT_LIST_KEY + userId;
+    }
+
+    /**
+     * 构建完整的用户笔记收藏列表 ZSet KEY
+     */
+    public static String buildUserNoteCollectZSetKey(Long userId) {
+        return USER_NOTE_COLLECT_ZSET_KEY + userId;
     }
 }

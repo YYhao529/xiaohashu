@@ -21,7 +21,7 @@ public class LikeUnlikeNoteMqDTO {
     private Long noteId;
 
     /**
-     * 0: 取消点赞， 1：点赞
+     * 0: 取消点赞， 1:点赞
      */
     private Integer type;
 

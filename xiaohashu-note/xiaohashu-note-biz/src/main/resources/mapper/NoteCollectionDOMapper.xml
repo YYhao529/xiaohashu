@@ -17,6 +17,20 @@
     from t_note_collection
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="selectByUserId"
+          resultType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteCollectionDO">
+    select note_id from t_note_collection
+    where user_id = #{userId} and `status` = 1
+  </select>
+  <select id="selectNoteIsCollected" resultType="java.lang.Integer">
+    select count(0) from t_note_collection
+    where user_id = #{userId} and note_id = #{noteId} and `status` = 1 limit 1
+  </select>
+  <select id="selectCollectedByUserIdAndLimit"
+          resultType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteCollectionDO">
+    select note_id,create_time from t_note_collection
+    where user_id = #{userId} and status = 1 order by create_time desc limit #{limit}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_note_collection
     where id = #{id,jdbcType=BIGINT}
@@ -64,6 +78,11 @@
       </if>
     </trim>
   </insert>
+  <insert id="insertOrUpdate">
+    insert into t_note_collection (user_id, note_id, create_time, status)
+    values (#{userId}, #{noteId}, #{createTime}, #{status})
+    on duplicate key update `status` = #{status}, create_time = #{createTime}
+  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteCollectionDO">
     update t_note_collection
     <set>
@@ -89,5 +108,9 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       `status` = #{status,jdbcType=TINYINT}
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="update2UnCollectByUserIdAndNoteId">
+    update t_note_collection set `status` = #{status}, create_time = #{createTime}
+    where user_id = #{userId} and note_id = #{noteId} and `status` = 1
   </update>
 </mapper>

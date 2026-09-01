@@ -11,7 +11,7 @@ end
 
 -- 校验该篇笔记是否被收藏过(1 表示已经收藏，0 表示未收藏)
 local isCollected = redis.call("BF.EXISTS", key, noteId)
-if isCollected == 0 then
+if isCollected == 1 then
     return 1
 end
 

@@ -24,6 +24,8 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     NOTE_CANT_TOP("NOTE-20009", "此笔记无法置顶/取消置顶"),
     NOTE_ALREADY_LIKED("NOTE-20010", "您已经点赞过该笔记"),
     NOTE_NOT_LIKED("NOTE-20011", "您未点赞该篇笔记，无法取消点赞"),
+    NOTE_ALREADY_COLLECTED("NOTE-20012", "您已经收藏过该篇笔记"),
+    NOTE_NOT_COLLECTED("NOTE-20013", "您未收藏该篇笔记，无法取消收藏"),
     ;
 
     // 异常码
