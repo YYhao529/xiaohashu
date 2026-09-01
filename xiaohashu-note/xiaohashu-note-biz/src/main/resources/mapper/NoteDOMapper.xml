@@ -31,6 +31,9 @@
     <select id="selectCountByNoteId" resultType="int">
         select count(1) from t_note where id = #{noteId} and status = 1
     </select>
+    <select id="selectCreatorIdByNoteId" resultType="java.lang.Long">
+        select creator_id from t_note where id = #{noteId} and status = 1
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete
         from t_note

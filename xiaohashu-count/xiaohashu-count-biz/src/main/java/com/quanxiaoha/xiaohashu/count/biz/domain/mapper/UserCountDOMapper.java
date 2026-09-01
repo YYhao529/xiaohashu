@@ -25,4 +25,14 @@ public interface UserCountDOMapper {
      * 添加或更新关注总数
      */
     int insertOrUpdateFollowingTotalByUserId(@Param("count") Integer count,@Param("userId") Long userId);
+
+    /**
+     * 添加或更新笔记点赞数
+     */
+    int insertOrUpdateLikeTotalByUserId(@Param("count") Integer count,@Param("userId") Long userId);
+
+    /**
+     * 添加或更新笔记收藏数
+     */
+    int insertOrUpdateCollectTotalByUserId(@Param("count") Integer count,@Param("userId") Long userId);
 }

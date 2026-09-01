@@ -2,13 +2,16 @@ package com.quanxiaoha.framework.common.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,4 +64,16 @@ public class JsonUtils {
         // 将 JSON 字符串转换为 Map
         return OBJECT_MAPPER.readValue(jsonStr, mapType);
     }
+
+    /**
+     *
+     * 将 JSON 字符串解析为指定类型的 List 对象
+     */
+    public static <T> List<T> parseList(String jsonStr, Class<T> clazz) throws Exception {
+        JavaType javaType = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, clazz);
+
+        // 将 JSON 字符串解析为 List
+        return OBJECT_MAPPER.readValue(jsonStr, javaType);
+    }
+
 }

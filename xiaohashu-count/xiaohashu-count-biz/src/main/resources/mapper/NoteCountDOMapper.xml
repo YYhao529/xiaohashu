@@ -69,7 +69,12 @@
     values (#{noteId}, #{count})
     on duplicate key update like_total = #{count} + like_total
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.quanxiaoha.xiaohashu.count.biz.domain.dataobject.NoteCountDO">
+    <insert id="insertOrUpdateCollectTotalByNoteId">
+      insert into t_note_count (note_id, collect_total)
+      values (#{noteId}, #{count})
+      on duplicate key update collect_total = #{count} + collect_total
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.quanxiaoha.xiaohashu.count.biz.domain.dataobject.NoteCountDO">
     update t_note_count
     <set>
       <if test="noteId != null">

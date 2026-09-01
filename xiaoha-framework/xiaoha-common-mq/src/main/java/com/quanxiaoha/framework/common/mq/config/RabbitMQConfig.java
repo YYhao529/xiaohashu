@@ -277,14 +277,14 @@ public class RabbitMQConfig {
                 .with(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY);
     }
 
-    // ---------------------- 收藏数统计消息 ----------------------
-    // 收藏数统计消息交换机
+    // ---------------------- 笔记收藏数统计消息 ----------------------
+    // 笔记收藏数统计消息交换机
     @Bean
     public DirectExchange collectNoteCountExchange() {
         return new DirectExchange(MQConstants.COUNT_COLLECT_NOTE_EXCHANGE);
     }
 
-    // 收藏数统计消息队列
+    // 笔记收藏数统计消息队列
     @Bean
     public Queue collectNoteCountQueue() {
         return QueueBuilder
@@ -293,11 +293,34 @@ public class RabbitMQConfig {
                 .build();
     }
 
-    // 收藏数统计消息绑定
+    // 笔记收藏数统计消息绑定
     @Bean
     public Binding collectNoteCountBinding(Queue collectNoteCountQueue, DirectExchange collectNoteCountExchange) {
         return BindingBuilder.bind(collectNoteCountQueue).to(collectNoteCountExchange)
                 .with(MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY);
+    }
+
+    // ---------------------- 笔记收藏数落库消息 ----------------------
+    // 笔记收藏数落库消息交换机
+    @Bean
+    public DirectExchange countCollectNoteToDbExchange() {
+        return new DirectExchange(MQConstants.COUNT_COLLECT_NOTE_TO_DB_EXCHANGE);
+    }
+
+    // 笔记收藏数落库消息队列
+    @Bean
+    public Queue countCollectNoteToDbQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_COLLECT_NOTE_TO_DB_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 笔记收藏数落库消息绑定
+    @Bean
+    public Binding countCollectNoteToDbBinding(Queue countCollectNoteToDbQueue, DirectExchange countCollectNoteToDbExchange) {
+        return BindingBuilder.bind(countCollectNoteToDbQueue).to(countCollectNoteToDbExchange)
+                .with(MQConstants.COUNT_COLLECT_NOTE_TO_DB_ROUTING_KEY);
     }
 
     // ---------------------- 定义专门的队列和交换机，用于接收处理失败的消息 ----------------------

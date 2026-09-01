@@ -41,3 +41,5 @@ build/
 ### Logs ###
 logs/
 **/logs/
+
+**/.flattened-pom.xml
