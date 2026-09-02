@@ -90,6 +90,14 @@
         values (#{userId}, #{count})
         on duplicate key update following_total = following_total + #{count}
     </insert>
+    <insert id="insertOrUpdateLikeTotalByUserId">
+        insert into t_user_count (user_id, like_total) values (#{userId}, #{count})
+        on duplicate key update like_total = like_total + #{count}
+    </insert>
+    <insert id="insertOrUpdateCollectTotalByUserId">
+        insert into t_user_count (user_id, collect_total) values (#{userId}, #{count})
+        on duplicate key update collect_total = collect_total + #{count}
+    </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.quanxiaoha.xiaohashu.count.biz.domain.dataobject.UserCountDO">
         update t_user_count
         <set>

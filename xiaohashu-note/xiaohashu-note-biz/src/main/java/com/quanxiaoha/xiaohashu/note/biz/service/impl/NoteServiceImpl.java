@@ -2,7 +2,6 @@ package com.quanxiaoha.xiaohashu.note.biz.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.json.JSON;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Preconditions;
@@ -559,8 +558,8 @@ public class NoteServiceImpl implements NoteService {
         // 笔记 ID
         Long noteId = likeNoteReqVO.getId();
 
-        // 1. 校验被点赞的笔记是否存在
-        checkNoteIsExist(noteId);
+        // 1. 校验被点赞的笔记是否存在，若存在，则获取发布者用户 ID
+        Long creatorId = checkNoteIsExistAndGetCreatorId(noteId);
 
         // 2. 判断目标笔记，是否已经点赞过
         // 当前登录用户ID
@@ -673,8 +672,9 @@ public class NoteServiceImpl implements NoteService {
         LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO = LikeUnlikeNoteMqDTO.builder()
                 .userId(userId)
                 .noteId(noteId)
-                .type(LikeUnlikeNoteTypeEnum.LIKE.getCode())
+                .type(LikeUnlikeNoteTypeEnum.LIKE.getCode())  // 点赞笔记
                 .createTime(now)
+                .noteCreatorId(creatorId)   // 笔记发布者 ID
                 .build();
 
         // 异步发送 MQ 消息，提升接口响应速度
@@ -698,8 +698,8 @@ public class NoteServiceImpl implements NoteService {
     public Response<?> unlikeNote(UnlikeNoteReqVO unlikeNoteReqVO) {
         Long noteId = unlikeNoteReqVO.getId();
 
-        // 1. 校验笔记是否真实存在
-        checkNoteIsExist(noteId);
+        // 1. 校验笔记是否真实存在，若存在，则获取发布者用户 ID
+        Long creatorId = checkNoteIsExistAndGetCreatorId(noteId);
 
         // 2. 校验笔记是否被点赞过
         // 当前登录用户 ID
@@ -753,8 +753,9 @@ public class NoteServiceImpl implements NoteService {
         LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO = LikeUnlikeNoteMqDTO.builder()
                 .userId(userId)
                 .noteId(noteId)
-                .type(LikeUnlikeNoteTypeEnum.UNLIKE.getCode())
+                .type(LikeUnlikeNoteTypeEnum.UNLIKE.getCode())  // 取消点赞笔记
                 .createTime(LocalDateTime.now())
+                .noteCreatorId(creatorId)   // 笔记发布者 ID
                 .build();
 
         // 异步发送 MQ 消息，提升接口响应速度
@@ -781,8 +782,8 @@ public class NoteServiceImpl implements NoteService {
         // 当前登录用户 ID
         Long userId = LoginUserContextHolder.getUserId();
 
-        // 1. 校验笔记是否真实存在
-        checkNoteIsExist(noteId);
+        // 1. 校验笔记是否真实存在，若存在，则获取发布者用户 ID
+        Long creatorId = checkNoteIsExistAndGetCreatorId(noteId);
 
         // 2. 判断目标笔记，是否已经收藏过
         // 构建布隆过滤器 Key
@@ -900,6 +901,7 @@ public class NoteServiceImpl implements NoteService {
                 .noteId(noteId)
                 .createTime(now)
                 .type(CollectUnCollectNoteTypeEnum.COLLECT.getCode())   // 收藏笔记，提升接口响应速度
+                .noteCreatorId(creatorId)   // 笔记发布者 ID
                 .build();
 
         // 异步发送 MQ 消息
@@ -926,8 +928,8 @@ public class NoteServiceImpl implements NoteService {
         // 当前登录用户 ID
         Long userId = LoginUserContextHolder.getUserId();
 
-        // 1. 校验笔记是否真实存在
-        checkNoteIsExist(noteId);
+        // 1. 校验笔记是否真实存在，若存在，则获取发布者用户 ID
+        Long creatorId = checkNoteIsExistAndGetCreatorId(noteId);
 
         // 2. 校验笔记是否被收藏过
         // 构建用户笔记收藏布隆过滤器 Key
@@ -978,6 +980,7 @@ public class NoteServiceImpl implements NoteService {
                 .noteId(noteId)
                 .createTime(now)
                 .type(CollectUnCollectNoteTypeEnum.UN_COLLECT.getCode())   // 取消收藏笔记
+                .noteCreatorId(creatorId)   // 笔记发布者 ID
                 .build();
 
         // 异步发送顺序 MQ 消息，提升接口响应速度
@@ -1127,9 +1130,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     /**
-     * 校验笔记是否存在
+     * 校验笔记是否存在，若存在，则获取笔记的发布者用户 ID
      */
-    private void checkNoteIsExist(Long noteId) {
+    private Long checkNoteIsExistAndGetCreatorId(Long noteId) {
         // 先从本地缓存中查询
         String findNoteDetailRspVOStrLocalCache = LOCAL_CACHE.getIfPresent(noteId);
         // 解析 Json 字符串为 VO 对象
@@ -1146,10 +1149,11 @@ public class NoteServiceImpl implements NoteService {
 
             // 如果缓存都失效了，则从数据库中查询
             if (Objects.isNull(findNoteDetailRspVO)) {
-                int count = noteDOMapper.selectCountByNoteId(noteId);
+                // 笔记发布者用户 ID
+                Long creatorId = noteDOMapper.selectCreatorIdByNoteId(noteId);
 
                 // 若数据库中也不存在，提示用户
-                if (count == 0) {
+                if (Objects.isNull(creatorId)) {
                     throw new BizException(ResponseCodeEnum.NOTE_NOT_FOUND);
                 }
 
@@ -1158,8 +1162,11 @@ public class NoteServiceImpl implements NoteService {
                     FindNoteDetailReqVO findNoteDetailReqVO = FindNoteDetailReqVO.builder().id(noteId).build();
                     findNoteDetail(findNoteDetailReqVO);
                 });
+                return creatorId;
             }
         }
+
+        return findNoteDetailRspVO.getCreatorId();
     }
 
     /**

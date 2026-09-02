@@ -7,10 +7,12 @@ import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteCollectionDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteCollectionDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.enums.CollectUnCollectNoteTypeEnum;
 import com.quanxiaoha.xiaohashu.note.biz.model.dto.CollectUnCollectNoteMqDTO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -26,6 +28,8 @@ public class CollectUnCollectNoteConsumer {
     private NoteCollectionDOMapper noteCollectionDOMapper;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     // 每秒创建 5000 个令牌
     private RateLimiter rateLimiter = RateLimiter.create(5000);
@@ -37,7 +41,7 @@ public class CollectUnCollectNoteConsumer {
 
         log.info("==> CollectUnCollectNoteConsumer 消费了消息 {}", collectUnCollectNoteMqDTO);
 
-        if (Objects.isNull(collectUnCollectNoteMqDTO)){
+        if (Objects.isNull(collectUnCollectNoteMqDTO)) {
             log.warn("==> CollectUnCollectNoteMqDTO 为空");
             return;
         }
@@ -69,13 +73,15 @@ public class CollectUnCollectNoteConsumer {
         int count = noteCollectionDOMapper.insertOrUpdate(noteCollectionDO);
 
         // 异步发送 MQ 消息
-        try {
-            rabbitTemplate.convertAndSend(MQConstants.COUNT_COLLECT_NOTE_EXCHANGE,
-                    MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY, JsonUtils.toJsonString(noteCollectionDO));
-            log.info("==> 【计数: 笔记收藏】MQ 发送成功");
-        } catch (Exception e) {
-            log.error("==> 【计数: 笔记收藏】MQ 发送异常: ", e);
-        }
+        threadPoolTaskExecutor.submit(() -> {
+            try {
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_COLLECT_NOTE_EXCHANGE,
+                        MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY, JsonUtils.toJsonString(collectUnCollectNoteMqDTO));
+                log.info("==> 【计数: 笔记收藏】MQ 发送成功");
+            } catch (Exception e) {
+                log.error("==> 【计数: 笔记收藏】MQ 发送异常: ", e);
+            }
+        });
     }
 
     /**
@@ -93,15 +99,18 @@ public class CollectUnCollectNoteConsumer {
         // 取消收藏：记录更新
         int count = noteCollectionDOMapper.update2UnCollectByUserIdAndNoteId(noteCollectionDO);
 
-        // 异步发送 MQ 消息
-        try {
-            rabbitTemplate.convertAndSend(MQConstants.COUNT_COLLECT_NOTE_EXCHANGE,
-                    MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY, JsonUtils.toJsonString(noteCollectionDO));
-            log.info("==> 【计数: 笔记取消收藏】MQ 发送成功");
-        } catch (Exception e) {
-            log.error("==> 【计数: 笔记取消收藏】MQ 发送异常: ", e);
-        }
-    }
+        if (count == 0) return;
 
+        // 异步发送 MQ 消息
+        threadPoolTaskExecutor.submit(() -> {
+            try {
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_COLLECT_NOTE_EXCHANGE,
+                        MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY, JsonUtils.toJsonString(collectUnCollectNoteMqDTO));
+                log.info("==> 【计数: 笔记取消收藏】MQ 发送成功");
+            } catch (Exception e) {
+                log.error("==> 【计数: 笔记取消收藏】MQ 发送异常: ", e);
+            }
+        });
+    }
 
 }

@@ -26,4 +26,9 @@ public class CollectUnCollectNoteMqDTO {
     private Integer type;
 
     private LocalDateTime createTime;
+
+    /**
+     * 笔记发布者 ID
+     */
+    private Long noteCreatorId;
 }

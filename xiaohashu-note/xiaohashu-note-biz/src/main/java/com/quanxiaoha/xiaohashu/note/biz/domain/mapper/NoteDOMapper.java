@@ -23,4 +23,9 @@ public interface NoteDOMapper {
     int updateVisibleOnlyMe(NoteDO noteDO);
 
     int updateIsTop(NoteDO noteDO);
+
+    /**
+     * 查询笔记的发布者用户 ID
+     */
+    Long selectCreatorIdByNoteId(Long noteId);
 }

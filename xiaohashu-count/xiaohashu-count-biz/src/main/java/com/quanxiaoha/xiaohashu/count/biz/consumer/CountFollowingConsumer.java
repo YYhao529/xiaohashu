@@ -25,10 +25,8 @@ public class CountFollowingConsumer {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
-
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
     @Resource(name = "taskExecutor")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 

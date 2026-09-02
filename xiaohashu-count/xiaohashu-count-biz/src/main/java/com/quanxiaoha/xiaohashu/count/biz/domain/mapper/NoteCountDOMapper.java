@@ -20,4 +20,9 @@ public interface NoteCountDOMapper {
      * 添加笔记计数记录或更新笔记点赞数
      */
     int insertOrUpdateLikeTotalByNoteId(@Param("count") Integer count,@Param("noteId") Long noteId);
+
+    /**
+     * 添加笔记收藏数记录或更新笔记收藏数
+     */
+    int insertOrUpdateCollectTotalByNoteId(@Param("count") Integer count,@Param("noteId") Long noteId);
 }

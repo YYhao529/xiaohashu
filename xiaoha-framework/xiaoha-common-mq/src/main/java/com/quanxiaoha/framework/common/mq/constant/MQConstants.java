@@ -135,6 +135,16 @@ public final class MQConstants {
     // 笔记收藏数统计消息路由键
     public static final String COUNT_COLLECT_NOTE_ROUTING_KEY = "count.collect.note";
 
+    // ---------------------- 笔记收藏数落库消息 ----------------------
+    // 笔记收藏数落库消息交换机
+    public static final String COUNT_COLLECT_NOTE_TO_DB_EXCHANGE = COUNT_SERVICE_PREFIX + "collect.note.2db.direct";
+
+    // 笔记收藏数落库消息队列
+    public static final String COUNT_COLLECT_NOTE_TO_DB_QUEUE = COUNT_SERVICE_PREFIX + "collect.note.2db.queue";
+
+    // 笔记收藏数落库消息路由键
+    public static final String COUNT_COLLECT_NOTE_TO_DB_ROUTING_KEY = "count.collect.note.2db";
+
     // ---------------------- 定义专门的队列和交换机，用于接收处理失败的消息 ----------------------
     // 接收失败消息交换机
     public static final String ERROR_MESSAGE_EXCHANGE = "error.direct";

@@ -27,6 +27,9 @@ public class NoteContentServiceImpl implements NoteContentService {
     @Autowired
     private NoteContentRepository noteContentRepository;
 
+    /**
+     * 添加笔记内容
+     */
     @Override
     public Response<?> addNoteContent(AddNoteContentReqDTO addNoteContentReqDTO) {
         // 笔记 UUID
@@ -46,6 +49,9 @@ public class NoteContentServiceImpl implements NoteContentService {
         return Response.success();
     }
 
+    /**
+     * 查询笔记内容
+     */
     @Override
     public Response<FindNoteContentRspDTO> findNoteContent(FindNoteContentReqDTO findNoteContentReqDTO) {
         // 笔记 UUID
@@ -68,6 +74,9 @@ public class NoteContentServiceImpl implements NoteContentService {
         return Response.success(findNoteContentRspDTO);
     }
 
+    /**
+     * 删除笔记内容
+     */
     @Override
     public Response<?> deleteNoteContent(DeleteNoteContentReqDTO deleteNoteContentReqDTO) {
         // 笔记 UUID
