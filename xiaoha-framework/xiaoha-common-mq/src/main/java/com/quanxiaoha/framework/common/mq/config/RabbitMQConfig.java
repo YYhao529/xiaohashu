@@ -208,6 +208,22 @@ public class RabbitMQConfig {
                 .with(MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY);
     }
 
+    // 笔记点赞数对齐消息队列
+    @Bean
+    public Queue countLikeNoteAlignQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_LIKE_NOTE_ALIGN_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 笔记点赞数对齐消息绑定
+    @Bean
+    public Binding countLikeNoteAlignBinding(Queue countLikeNoteAlignQueue, DirectExchange likeNoteCountExchange) {
+        return BindingBuilder.bind(countLikeNoteAlignQueue).to(likeNoteCountExchange)
+                .with(MQConstants.COUNT_LIKE_NOTE_ROUTING_KEY);
+    }
+
     // ---------------------- 笔记点赞数落库消息 ----------------------
     // 笔记点赞数落库消息交换机
     @Bean
@@ -297,6 +313,22 @@ public class RabbitMQConfig {
     @Bean
     public Binding collectNoteCountBinding(Queue collectNoteCountQueue, DirectExchange collectNoteCountExchange) {
         return BindingBuilder.bind(collectNoteCountQueue).to(collectNoteCountExchange)
+                .with(MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY);
+    }
+
+    // 笔记收藏数对齐消息队列
+    @Bean
+    public Queue countCollectNoteAlignQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_COLLECT_NOTE_ALIGN_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 笔记收藏数对齐消息绑定
+    @Bean
+    public Binding countCollectNoteAlignBinding(Queue countCollectNoteAlignQueue, DirectExchange collectNoteCountExchange) {
+        return BindingBuilder.bind(countCollectNoteAlignQueue).to(collectNoteCountExchange)
                 .with(MQConstants.COUNT_COLLECT_NOTE_ROUTING_KEY);
     }
 

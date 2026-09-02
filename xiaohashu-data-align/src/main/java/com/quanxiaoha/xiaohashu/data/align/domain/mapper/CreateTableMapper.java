@@ -10,4 +10,34 @@ public interface CreateTableMapper {
      */
     void createDataAlignFollowingCountTempTable(String tableNameSuffix);
 
+    /**
+     * 创建日增量表：粉丝数计数变更
+     */
+    void createDataAlignFansCountTempTable(String tableNameSuffix);
+
+    /**
+     * 创建日增量表：笔记收藏数计数变更
+     */
+    void createDataAlignNoteCollectCountTempTable(String tableNameSuffix);
+
+    /**
+     * 创建日增量表：用户被收藏数计数变更
+     */
+    void createDataAlignUserCollectCountTempTable(String tableNameSuffix);
+
+    /**
+     * 创建日增量表：用户被点赞数计数变更
+     */
+    void createDataAlignUserLikeCountTempTable(String tableNameSuffix);
+
+    /**
+     * 创建日增量表：笔记点赞数计数变更
+     */
+    void createDataAlignNoteLikeCountTempTable(String tableNameSuffix);
+
+    /**
+     * 创建日增量表：笔记发布数计数变更
+     */
+    void createDataAlignNotePublishCountTempTable(String tableNameSuffix);
+
 }

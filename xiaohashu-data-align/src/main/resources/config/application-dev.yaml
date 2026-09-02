@@ -1,4 +1,26 @@
 spring:
+  rabbitmq:
+    host: localhost # RabbitMQ 服务器地址
+    port: 5672 # 连接端口
+    virtual-host: /xiaohashu # 虚拟主机名称
+    username: quanxiaoha # 用户名
+    password: 123456 # 密码
+    connection-timeout: 3s # 连接超时时间
+    template:
+      retry:
+        enabled: true # 开启超时重试机制
+        initial-interval: 1000ms # 失败后的初始等待时间
+        multiplier: 2 # 失败后的等待时间倍数
+        max-attempts: 3 # 最大重试次数
+    listener:
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: true # 开启消费者失败重试
+          initial-interval: 1000ms # 初识的失败等待时长为1秒
+          multiplier: 2 # 失败的等待时长倍数，下次等待时长 = multiplier * last-interval
+          max-attempts: 3 # 最大重试次数
+          stateless: false # true无状态；false有状态。如果业务中包含事务，这里改为false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # 指定数据库驱动类
     # 数据库连接信息
@@ -64,6 +86,5 @@ xxl:
 logging:
   level:
     com.quanxiaoha.xiaohashu.data.align.domain.mapper: debug
-
 table:
   shards: 3 # 日增量表分片数

@@ -13,7 +13,7 @@ public class TableConstants {
     /**
      * 拼接表名后缀
      */
-    public static String buildTableNameSuffix(String date, int hashKey) {
+    public static String buildTableNameSuffix(String date, long hashKey) {
         // 拼接完整的表名
         return date + TABLE_NAME_SEPARATE + hashKey;
     }

@@ -20,6 +20,11 @@ public final class MQConstants {
      */
     private static final String NOTE_SERVICE_PREFIX = "note.";
 
+    /**
+     * 数据对齐服务前缀
+     */
+    private static final String DATA_ALIGN_SERVICE_PREFIX = "data.align.";
+
     // ---------------------- 关注消息、取消关注消息 ----------------------
     // 关注、取消关注消息交换机
     public static final String FOLLOW_UNFOLLOW_MESSAGE_EXCHANGE = RELATION_SERVICE_PREFIX + "follow.unfollow.direct";
@@ -95,6 +100,9 @@ public final class MQConstants {
     // 笔记点赞数统计消息路由键
     public static final String COUNT_LIKE_NOTE_ROUTING_KEY = "count.like.note";
 
+    // 笔记点赞数对齐消息队列
+    public static final String COUNT_LIKE_NOTE_ALIGN_QUEUE = DATA_ALIGN_SERVICE_PREFIX + "like.note.queue";
+
     // ---------------------- 笔记点赞数落库消息 ----------------------
     // 笔记点赞数落库消息交换机
     public static final String COUNT_LIKE_NOTE_TO_DB_EXCHANGE = COUNT_SERVICE_PREFIX + "like.note.2db.direct";
@@ -134,6 +142,9 @@ public final class MQConstants {
 
     // 笔记收藏数统计消息路由键
     public static final String COUNT_COLLECT_NOTE_ROUTING_KEY = "count.collect.note";
+
+    // 笔记收藏数对齐消息队列
+    public static final String COUNT_COLLECT_NOTE_ALIGN_QUEUE = DATA_ALIGN_SERVICE_PREFIX + "collect.note.queue";
 
     // ---------------------- 笔记收藏数落库消息 ----------------------
     // 笔记收藏数落库消息交换机
