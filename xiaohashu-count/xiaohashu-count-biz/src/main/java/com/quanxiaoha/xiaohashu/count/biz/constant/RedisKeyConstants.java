@@ -18,6 +18,11 @@ public class RedisKeyConstants {
     public static final String FIELD_FOLLOWING_TOTAL = "followingTotal";
 
     /**
+     * Hash Field: 笔记发布总数
+     */
+    public static final String FIELD_NOTE_TOTAL = "noteTotal";
+
+    /**
      * 笔记维度计数 Key 前缀
      */
     private static final String COUNT_NOTE_KEY_PREFIX = "count:note:";

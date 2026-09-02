@@ -23,6 +23,7 @@ import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.TopicDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.enums.*;
 import com.quanxiaoha.xiaohashu.note.biz.model.dto.CollectUnCollectNoteMqDTO;
 import com.quanxiaoha.xiaohashu.note.biz.model.dto.LikeUnlikeNoteMqDTO;
+import com.quanxiaoha.xiaohashu.note.biz.model.dto.NoteOperateMqDTO;
 import com.quanxiaoha.xiaohashu.note.biz.model.vo.*;
 import com.quanxiaoha.xiaohashu.note.biz.rpc.DistributedIdGeneratorRpcService;
 import com.quanxiaoha.xiaohashu.note.biz.rpc.KeyValueRpcService;
@@ -123,7 +124,7 @@ public class NoteServiceImpl implements NoteService {
         }
 
         // 调用分布式 ID 生成服务，生成笔记 ID
-        String noteId = distributedIdGeneratorRpcService.getSnowflakeId();
+        String snowflakeIdId = distributedIdGeneratorRpcService.getSnowflakeId();
         // 笔记内容 UUID
         String contentUuid = null;
 
@@ -162,7 +163,7 @@ public class NoteServiceImpl implements NoteService {
 
         // 构建笔记 DO 对象
         NoteDO noteDO = NoteDO.builder()
-                .id(Long.valueOf(noteId))
+                .id(Long.valueOf(snowflakeIdId))
                 .isContentEmpty(isContentEmpty)
                 .creatorId(creatorId)
                 .imgUris(imgUris)
@@ -182,6 +183,25 @@ public class NoteServiceImpl implements NoteService {
         try {
             // 笔记入库存储
             noteDOMapper.insert(noteDO);
+
+            // 构建消息体 DTO
+            NoteOperateMqDTO noteOperateMqDTO = NoteOperateMqDTO.builder()
+                    .noteId(Long.valueOf(snowflakeIdId))
+                    .creatorId(creatorId)
+                    .type(NoteOperateEnum.PUBLISH.getCode())    // 发布笔记
+                    .build();
+
+            // 发送消息到 MQ，通知计数服务更改笔记数统计
+            threadPoolTaskExecutor.submit(() -> {
+                try {
+                    rabbitTemplate.convertAndSend(MQConstants.COUNT_PUBLISH_NOTE_EXCHANGE, MQConstants.COUNT_PUBLISH_NOTE_ROUTING_KEY,
+                            JsonUtils.toJsonString(noteOperateMqDTO));
+                    log.info("==> 【笔记发布】MQ 发送成功");
+                } catch (Exception e) {
+                    log.error("==> 【笔记发布】MQ 发送异常: ", e);
+                }
+
+            });
         } catch (Exception e) {
             log.error("==> 笔记存储失败", e);
 
@@ -475,6 +495,22 @@ public class NoteServiceImpl implements NoteService {
             // 发送缓存失效消息
             sendLocalCacheInvalidateMessage(noteId);
             sendRedisCacheInvalidateMessage(noteId);
+
+            try {
+                // 构建消息体 DTO
+                NoteOperateMqDTO noteOperateMqDTO = NoteOperateMqDTO.builder()
+                        .noteId(noteId)
+                        .creatorId(noteDO.getCreatorId())
+                        .type(NoteOperateEnum.DELETE.getCode())    // 删除笔记
+                        .build();
+
+                // 发送消息到 MQ， 通知计数服务更改笔记数统计
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_PUBLISH_NOTE_EXCHANGE, MQConstants.COUNT_PUBLISH_NOTE_ROUTING_KEY,
+                        JsonUtils.toJsonString(noteOperateMqDTO));
+                log.info("==> 【笔记删除】MQ 发送成功");
+            } catch (Exception e) {
+                log.error("==> 【笔记删除】MQ 发送异常: ", e);
+            }
         });
 
         return Response.success();
@@ -984,7 +1020,7 @@ public class NoteServiceImpl implements NoteService {
                 .build();
 
         // 异步发送顺序 MQ 消息，提升接口响应速度
-        threadPoolTaskExecutor.submit(()->{
+        threadPoolTaskExecutor.submit(() -> {
             try {
                 rabbitTemplate.convertAndSend(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE,
                         MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY, collectUnCollectNoteMqDTO);
