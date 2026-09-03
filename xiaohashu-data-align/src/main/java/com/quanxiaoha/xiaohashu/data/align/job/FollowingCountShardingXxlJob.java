@@ -83,7 +83,6 @@ public class FollowingCountShardingXxlJob {
                     }
                 }
             }
-
             // 4. 批量物理删除这一批次记录
             deleteMapper.batchDeleteDataAlignFollowingCountTempTable(tableNameSuffix, userIds);
 

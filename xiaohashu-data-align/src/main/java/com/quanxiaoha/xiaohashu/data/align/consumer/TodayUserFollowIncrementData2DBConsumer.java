@@ -5,12 +5,11 @@ import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
-import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
+import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertMapper;
 import com.quanxiaoha.xiaohashu.data.align.model.dto.FollowUnfollowMqDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -33,7 +32,7 @@ public class TodayUserFollowIncrementData2DBConsumer {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
-    private InsertRecordMapper insertRecordMapper;
+    private InsertMapper insertMapper;
     @Autowired
     private TableConfig tableConfig;
 
@@ -74,7 +73,7 @@ public class TodayUserFollowIncrementData2DBConsumer {
             String tableNameSuffix = TableConstants.buildTableNameSuffix(date, userIdHashKey);
 
             try {
-                insertRecordMapper.insert2DataAlignUserFollowingCountTempTable(tableNameSuffix, userId);
+                insertMapper.insert2DataAlignUserFollowingCountTempTable(tableNameSuffix, userId);
             } catch (Exception e) {
                 log.error("", e);
             }
@@ -98,7 +97,7 @@ public class TodayUserFollowIncrementData2DBConsumer {
             String tableNameSuffix = TableConstants.buildTableNameSuffix(date, targetUserIdHashKey);
 
             try {
-                insertRecordMapper.insert2DataAlignUserFansCountTempTable(tableNameSuffix, targetUserId);
+                insertMapper.insert2DataAlignUserFansCountTempTable(tableNameSuffix, targetUserId);
             } catch (Exception e) {
                 log.error("", e);
             }

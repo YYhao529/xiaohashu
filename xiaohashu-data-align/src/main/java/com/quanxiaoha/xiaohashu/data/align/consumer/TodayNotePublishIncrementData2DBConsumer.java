@@ -5,13 +5,11 @@ import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
-import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
+import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertMapper;
 import com.quanxiaoha.xiaohashu.data.align.model.dto.NoteOperateMqDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -34,7 +32,7 @@ public class TodayNotePublishIncrementData2DBConsumer {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
-    private InsertRecordMapper insertRecordMapper;
+    private InsertMapper insertMapper;
     @Autowired
     private TableConfig tableConfig;
 
@@ -72,7 +70,7 @@ public class TodayNotePublishIncrementData2DBConsumer {
             // 构建表后缀名
             String tableNameSuffix = TableConstants.buildTableNameSuffix(date, userIdHashKey);
 
-            insertRecordMapper.insert2DataAlignUserNotePublishCountTempTable(tableNameSuffix, creatorId);
+            insertMapper.insert2DataAlignUserNotePublishCountTempTable(tableNameSuffix, creatorId);
 
             // 插入数据成功后，把创作者 ID 加入布隆过滤器
             RedisScript<Long> redisScript = RedisScript.of("return redis.call('BF.ADD',KEYS[1],ARGV[1])", Long.class);

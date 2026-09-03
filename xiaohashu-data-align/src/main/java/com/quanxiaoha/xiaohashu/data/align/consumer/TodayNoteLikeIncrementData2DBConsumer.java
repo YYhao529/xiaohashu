@@ -6,12 +6,11 @@ import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
-import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
+import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertMapper;
 import com.quanxiaoha.xiaohashu.data.align.model.dto.LikeUnlikeNoteMqDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -35,7 +34,7 @@ public class TodayNoteLikeIncrementData2DBConsumer {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
-    private InsertRecordMapper insertRecordMapper;
+    private InsertMapper insertMapper;
     @Autowired
     private TransactionTemplate transactionTemplate;
     @Autowired
@@ -59,7 +58,7 @@ public class TodayNoteLikeIncrementData2DBConsumer {
         // 当前日期
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         // 构建笔记点赞数布隆过滤器 Key
-        String bloomNoteLikeListKey = RedisKeyConstants.buildBloomNoteLikeListKey(date);
+        String bloomNoteLikeListKey = RedisKeyConstants.buildBloomUserNoteLikeNoteIdListKey(date);
 
         // 构建 Lua 脚本：判断笔记点赞数是否已经记录
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
@@ -76,7 +75,7 @@ public class TodayNoteLikeIncrementData2DBConsumer {
             String noteLikeCountTempTableNameSuffix = TableConstants.buildTableNameSuffix(date, noteHashKey);
 
             // 构建用户获得点赞数布隆过滤器 Key
-            String bloomUserLikeListKey = RedisKeyConstants.buildBloomUserLikeListKey(date);
+            String bloomUserLikeListKey = RedisKeyConstants.buildBloomUserNoteLikeUserIdListKey(date);
             // 构建 Lua 脚本：判断用户获得点赞数是否已经记录
             script.setScriptSource(new ResourceScriptSource(new ClassPathResource("/lua/bloom_today_user_like_check.lua")));
             script.setResultType(Long.class);
@@ -100,11 +99,11 @@ public class TodayNoteLikeIncrementData2DBConsumer {
             Boolean isSuccess = transactionTemplate.execute(status -> {
                 try {
                     // 插入笔记点赞数：计数变更表
-                    insertRecordMapper.insert2DataAlignNoteLikeCountTempTable(noteLikeCountTempTableNameSuffix, noteId);
+                    insertMapper.insert2DataAlignNoteLikeCountTempTable(noteLikeCountTempTableNameSuffix, noteId);
                     // 如果表明后缀不为空，说明
                     if (StrUtil.isNotBlank(finalUserLikeCountTempTableNameSuffix)) {
                         // 插入用户获得的点赞数：计数变更表
-                        insertRecordMapper.insert2DataAlignUserLikeCountTempTable(finalUserLikeCountTempTableNameSuffix, noteCreatorId);
+                        insertMapper.insert2DataAlignUserLikeCountTempTable(finalUserLikeCountTempTableNameSuffix, noteCreatorId);
                     }
                     return true;
                 } catch (Exception e) {

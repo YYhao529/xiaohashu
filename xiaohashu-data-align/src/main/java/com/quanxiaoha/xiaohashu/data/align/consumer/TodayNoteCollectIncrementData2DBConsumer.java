@@ -6,12 +6,11 @@ import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
-import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
+import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertMapper;
 import com.quanxiaoha.xiaohashu.data.align.model.dto.CollectUnCollectNoteMqDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -37,7 +36,7 @@ public class TodayNoteCollectIncrementData2DBConsumer {
     @Autowired
     private TransactionTemplate transactionTemplate;
     @Autowired
-    private InsertRecordMapper insertRecordMapper;
+    private InsertMapper insertMapper;
     @Autowired
     private TableConfig tableConfig;
 
@@ -60,7 +59,7 @@ public class TodayNoteCollectIncrementData2DBConsumer {
         Long noteCreatorId = collectUnCollectNoteMqDTO.getNoteCreatorId();
 
         // 构建布隆过滤器 KEY
-        String bloomNoteCollectListKey = RedisKeyConstants.buildBloomNoteCollectListKey(date);
+        String bloomNoteCollectListKey = RedisKeyConstants.buildBloomUserNoteCollectNoteIdListKey(date);
 
         // 通过布隆过滤器校验该笔记是否已经被记录
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
@@ -79,7 +78,7 @@ public class TodayNoteCollectIncrementData2DBConsumer {
 
             // 校验创作者是否已经被记录
             // 构建布隆过滤器 KEY
-            String bloomUserCollectListKey = RedisKeyConstants.buildBloomUserCollectListKey(date);
+            String bloomUserCollectListKey = RedisKeyConstants.buildBloomUserNoteCollectUserIdListKey(date);
 
             script.setScriptSource(new ResourceScriptSource(new ClassPathResource("/lua/bloom_today_user_collect_check.lua")));
             script.setResultType(Long.class);
@@ -100,10 +99,10 @@ public class TodayNoteCollectIncrementData2DBConsumer {
             Boolean isSuccess = transactionTemplate.execute(status -> {
                 try {
                     // 记录笔记
-                    insertRecordMapper.insert2DataAlignNoteCollectCountTempTable(noteTableNameSuffix, noteId);
+                    insertMapper.insert2DataAlignNoteCollectCountTempTable(noteTableNameSuffix, noteId);
                     if (StrUtil.isNotBlank(finalUserTableNameSuffix)) {
                         // 如果后缀名不为空，说明该创作者还未记录
-                        insertRecordMapper.insert2DataAlignUserCollectCountTempTable(finalUserTableNameSuffix, noteCreatorId);
+                        insertMapper.insert2DataAlignUserCollectCountTempTable(finalUserTableNameSuffix, noteCreatorId);
                     }
                     return true;
                 } catch (Exception e) {
