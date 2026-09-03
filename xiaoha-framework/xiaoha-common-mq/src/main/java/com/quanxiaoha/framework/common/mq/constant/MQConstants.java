@@ -166,6 +166,9 @@ public final class MQConstants {
     // 笔记发布统计消息路由键
     public static final String COUNT_PUBLISH_NOTE_ROUTING_KEY = "count.publish.note";
 
+    // 笔记发布数对齐消息队列
+    public static final String COUNT_PUBLISH_NOTE_ALIGN_QUEUE = DATA_ALIGN_SERVICE_PREFIX + "publish.note.queue";
+
     // ---------------------- 定义专门的队列和交换机，用于接收处理失败的消息 ----------------------
     // 接收失败消息交换机
     public static final String ERROR_MESSAGE_EXCHANGE = "error.direct";

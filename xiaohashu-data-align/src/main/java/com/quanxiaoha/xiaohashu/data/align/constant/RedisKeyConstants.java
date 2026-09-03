@@ -49,4 +49,16 @@ public class RedisKeyConstants {
     public static String buildBloomUserCollectListKey(String date) {
         return BLOOM_TODAY_USER_COLLECT_LIST_KEY + date;
     }
+
+    /**
+     * 布隆过滤器：日增量变更数据，用户笔记发布，删除 前缀
+     */
+    public static final String BLOOM_TODAY_USER_NOTE_OPERATOR_LIST_KEY = "bloom:dataAlign:user:note:operators:";
+
+    /**
+     * 构建完整的布隆过滤器：日增量变更数据，用户笔记发布，删除 KEY
+     */
+    public static String buildBloomUserNoteOperateListKey(String date) {
+        return BLOOM_TODAY_USER_NOTE_OPERATOR_LIST_KEY + date;
+    }
 }

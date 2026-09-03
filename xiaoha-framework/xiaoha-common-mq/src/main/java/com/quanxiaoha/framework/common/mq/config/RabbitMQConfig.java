@@ -378,6 +378,22 @@ public class RabbitMQConfig {
                 .with(MQConstants.COUNT_PUBLISH_NOTE_ROUTING_KEY);
     }
 
+    // 发布笔记数对齐消息队列
+    @Bean
+    public Queue countPublishNoteAlignQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_PUBLISH_NOTE_ALIGN_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 发布笔记数对齐消息绑定
+    @Bean
+    public Binding countPublishNoteAlignBinding(Queue countPublishNoteAlignQueue, DirectExchange publishNoteCountExchange) {
+        return BindingBuilder.bind(countPublishNoteAlignQueue).to(publishNoteCountExchange)
+                .with(MQConstants.COUNT_PUBLISH_NOTE_ROUTING_KEY);
+    }
+
     // ---------------------- 定义专门的队列和交换机，用于接收处理失败的消息 ----------------------
     // 接收失败消息交换机
     @Bean
