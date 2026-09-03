@@ -45,7 +45,7 @@ public class TodayNoteLikeIncrementData2DBConsumer {
     private int tableShards;
 
     @RabbitListener(queues = MQConstants.COUNT_LIKE_NOTE_ALIGN_QUEUE)
-    public void handleCountLikeNoteAlignMessage(String message) {
+    public void consume(String message) {
         log.info("## TodayNoteLikeIncrementData2DBConsumer 消费到了 MQ: {}", message);
 
         // 布隆过滤器判断该日增量数据是否已经记录（包括笔记点赞数和用户获得点赞数）

@@ -42,7 +42,7 @@ public class TodayNoteCollectIncrementData2DBConsumer {
     private int tableShards;
 
     @RabbitListener(queues = MQConstants.COUNT_COLLECT_NOTE_ALIGN_QUEUE)
-    public void handleCountCollectNoteAlignMessage(String message) {
+    public void consume(String message) {
         log.info("## TodayNoteCollectIncrementData2DBConsumer 消费到了 MQ: {}", message);
 
         CollectUnCollectNoteMqDTO collectUnCollectNoteMqDTO = JsonUtils.parseObject(message, CollectUnCollectNoteMqDTO.class);

@@ -70,7 +70,7 @@ class MQTests {
             threadPoolTaskExecutor.submit(() -> {
                 try {
                     // 发送 MQ 通知计数服务：统计关注数
-                    rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                    rabbitTemplate.convertAndSend(MQConstants.COUNT_FOLLOWINGS_FANS_EXCHANGE,
                             MQConstants.COUNT_FOLLOWINGS_ROUTING_KEY, countFollowUnfollowMqDTO);
                     log.info("==> 【计数服务：关注数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
                 } catch (AmqpException e) {
@@ -79,7 +79,7 @@ class MQTests {
 
                 try {
                     // 发送 MQ 通知计数服务：统计粉丝数
-                    rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE,
+                    rabbitTemplate.convertAndSend(MQConstants.COUNT_FOLLOWINGS_FANS_EXCHANGE,
                             MQConstants.COUNT_FANS_ROUTING_KEY, countFollowUnfollowMqDTO);
                     log.info("==> 【计数服务：粉丝数】MQ 发送成功，SendResult: {}", countFollowUnfollowMqDTO);
                 } catch (AmqpException e) {

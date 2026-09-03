@@ -72,15 +72,15 @@ public class RabbitMQConfig {
     // ---------------------- 关注表、粉丝表计数变更消息 ----------------------
     // 接收关注表、粉丝表计数变更消息交换机
     @Bean
-    public DirectExchange followingsFansCountExchange() {
-        return new DirectExchange(MQConstants.FOLLOWINGS_FANS_COUNT_EXCHANGE);
+    public DirectExchange countFollowingsFansExchange() {
+        return new DirectExchange(MQConstants.COUNT_FOLLOWINGS_FANS_EXCHANGE);
     }
 
     // 关注表计数变更消息队列
     @Bean
     public Queue countFollowingsQueue() {
         return QueueBuilder
-                .durable(MQConstants.FOLLOWINGS_COUNT_QUEUE)
+                .durable(MQConstants.COUNT_FOLLOWINGS_QUEUE)
                 .lazy()
                 .build();
     }
@@ -89,23 +89,39 @@ public class RabbitMQConfig {
     @Bean
     public Queue countFansQueue() {
         return QueueBuilder
-                .durable(MQConstants.FANS_COUNT_QUEUE)
+                .durable(MQConstants.COUNT_FANS_QUEUE)
                 .lazy()
                 .build();
     }
 
     // 关注表计数变更消息路由键
     @Bean
-    public Binding countFollowingsBinding(Queue countFollowingsQueue, DirectExchange followingsFansCountExchange) {
-        return BindingBuilder.bind(countFollowingsQueue).to(followingsFansCountExchange)
+    public Binding countFollowingsBinding(Queue countFollowingsQueue, DirectExchange countFollowingsFansExchange) {
+        return BindingBuilder.bind(countFollowingsQueue).to(countFollowingsFansExchange)
                 .with(MQConstants.COUNT_FOLLOWINGS_ROUTING_KEY);
     }
 
     // 粉丝表计数变更消息路由键
     @Bean
-    public Binding countFansBinding(Queue countFansQueue, DirectExchange followingsFansCountExchange) {
-        return BindingBuilder.bind(countFansQueue).to(followingsFansCountExchange)
+    public Binding countFansBinding(Queue countFansQueue, DirectExchange countFollowingsFansExchange) {
+        return BindingBuilder.bind(countFansQueue).to(countFollowingsFansExchange)
                 .with(MQConstants.COUNT_FANS_ROUTING_KEY);
+    }
+
+    // 关注数、粉丝数对齐消息队列
+    @Bean
+    public Queue countFollowingsUnfollowAlignQueue() {
+        return QueueBuilder
+                .durable(MQConstants.COUNT_FOLLOWINGS_UNFOLLOW_ALIGN_QUEUE)
+                .lazy()
+                .build();
+    }
+
+    // 关注数、粉丝数对齐消息绑定
+    @Bean
+    public Binding countFollowingsUnfollowAlignBinding(Queue countFollowingsUnfollowAlignQueue, DirectExchange countFollowingsFansExchange) {
+        return BindingBuilder.bind(countFollowingsUnfollowAlignQueue).to(countFollowingsFansExchange)
+                .with(MQConstants.COUNT_FOLLOWINGS_ROUTING_KEY);
     }
 
     // ---------------------- 缓存失效消息 ----------------------
@@ -149,13 +165,13 @@ public class RabbitMQConfig {
     // ---------------------- 关注数、粉丝数落库消息 ----------------------
     // 关注数、粉丝数落库消息交换机
     @Bean
-    public DirectExchange followingsFansToDbExchange() {
-        return new DirectExchange(MQConstants.FOLLOWINGS_FANS_TO_DB_EXCHANGE);
+    public DirectExchange countFollowingsFans2DBExchange() {
+        return new DirectExchange(MQConstants.COUNT_FOLLOWINGS_FANS_TO_DB_EXCHANGE);
     }
 
     // 关注数落库消息队列
     @Bean
-    public Queue followingsToDbQueue() {
+    public Queue countFollowings2DBQueue() {
         return QueueBuilder
                 .durable(MQConstants.COUNT_FOLLOWINGS_TO_DB_QUEUE)
                 .lazy()
@@ -164,7 +180,7 @@ public class RabbitMQConfig {
 
     // 粉丝数落库消息队列
     @Bean
-    public Queue fansToDbQueue() {
+    public Queue countFans2DBQueue() {
         return QueueBuilder
                 .durable(MQConstants.COUNT_FANS_TO_DB_QUEUE)
                 .lazy()
@@ -173,15 +189,15 @@ public class RabbitMQConfig {
 
     // 关注数落库消息绑定
     @Bean
-    public Binding followingsToDbBinding(Queue followingsToDbQueue, DirectExchange followingsFansToDbExchange) {
-        return BindingBuilder.bind(followingsToDbQueue).to(followingsFansToDbExchange)
+    public Binding followingsToDbBinding(Queue countFollowings2DBQueue, DirectExchange countFollowingsFans2DBExchange) {
+        return BindingBuilder.bind(countFollowings2DBQueue).to(countFollowingsFans2DBExchange)
                 .with(MQConstants.COUNT_FOLLOWINGS_TO_DB_ROUTING_KEY);
     }
 
     // 粉丝数落库消息绑定
     @Bean
-    public Binding fansToDbBinding(Queue fansToDbQueue, DirectExchange followingsFansToDbExchange) {
-        return BindingBuilder.bind(fansToDbQueue).to(followingsFansToDbExchange)
+    public Binding fansToDbBinding(Queue countFans2DBQueue, DirectExchange countFollowingsFans2DBExchange) {
+        return BindingBuilder.bind(countFans2DBQueue).to(countFollowingsFans2DBExchange)
                 .with(MQConstants.COUNT_FANS_TO_DB_ROUTING_KEY);
     }
 
@@ -274,14 +290,14 @@ public class RabbitMQConfig {
     // 收藏、取消收藏笔记落库消息交换机
     @Bean
     public DirectExchange collectUnCollectNoteToDbExchange() {
-        return new DirectExchange(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE);
+        return new DirectExchange(MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_EXCHANGE);
     }
 
     // 收藏、取消收藏笔记落库消息队列
     @Bean
     public Queue collectUnCollectNoteToDbQueue() {
         return QueueBuilder
-                .durable(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_QUEUE)
+                .durable(MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_QUEUE)
                 .lazy()
                 .build();
     }
@@ -290,7 +306,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding collectUnCollectNoteToDbBinding(Queue collectUnCollectNoteToDbQueue, DirectExchange collectUnCollectNoteToDbExchange) {
         return BindingBuilder.bind(collectUnCollectNoteToDbQueue).to(collectUnCollectNoteToDbExchange)
-                .with(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY);
+                .with(MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_ROUTING_KEY);
     }
 
     // ---------------------- 笔记收藏数统计消息 ----------------------

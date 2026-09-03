@@ -34,7 +34,7 @@ public class CollectUnCollectNoteConsumer {
     // 每秒创建 5000 个令牌
     private RateLimiter rateLimiter = RateLimiter.create(5000);
 
-    @RabbitListener(queues = MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_QUEUE)
+    @RabbitListener(queues = MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_QUEUE)
     public void consume(CollectUnCollectNoteMqDTO collectUnCollectNoteMqDTO) {
         // 流量削峰：通过获取令牌，如果没有令牌可用，将阻塞，直到获得
         rateLimiter.acquire();

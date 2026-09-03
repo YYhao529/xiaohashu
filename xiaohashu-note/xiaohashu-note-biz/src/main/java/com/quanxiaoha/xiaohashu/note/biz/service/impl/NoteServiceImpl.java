@@ -943,8 +943,8 @@ public class NoteServiceImpl implements NoteService {
         // 异步发送 MQ 消息
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE,
-                        MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY, collectUnCollectNoteMqDTO);
+                rabbitTemplate.convertAndSend(MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_EXCHANGE,
+                        MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_ROUTING_KEY, collectUnCollectNoteMqDTO);
                 log.info("==> 【笔记收藏】MQ 发送成功");
             } catch (AmqpException e) {
                 log.error("==> 【笔记收藏】MQ 发送异常: ", e);
@@ -1022,8 +1022,8 @@ public class NoteServiceImpl implements NoteService {
         // 异步发送顺序 MQ 消息，提升接口响应速度
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE,
-                        MQConstants.COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY, collectUnCollectNoteMqDTO);
+                rabbitTemplate.convertAndSend(MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_EXCHANGE,
+                        MQConstants.COLLECT_UNCOLLECTED_NOTE_TO_DB_ROUTING_KEY, collectUnCollectNoteMqDTO);
                 log.info("==> 【笔记取消收藏】MQ 发送成功");
             } catch (AmqpException e) {
                 log.error("==> 【笔记取消收藏】MQ 发送异常: ", e);

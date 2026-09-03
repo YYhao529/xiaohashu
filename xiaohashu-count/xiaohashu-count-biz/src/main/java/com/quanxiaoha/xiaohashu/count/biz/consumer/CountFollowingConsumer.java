@@ -30,7 +30,7 @@ public class CountFollowingConsumer {
     @Resource(name = "taskExecutor")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
-    @RabbitListener(queues = MQConstants.FOLLOWINGS_COUNT_QUEUE)
+    @RabbitListener(queues = MQConstants.COUNT_FOLLOWINGS_QUEUE)
     public void consume(CountFollowUnfollowMqDTO countFollowUnfollowMqDTO) {
         log.info("## 消费到了 MQ 【计数: 关注数】, {}...", countFollowUnfollowMqDTO);
 
@@ -65,7 +65,7 @@ public class CountFollowingConsumer {
         // 异步发送 MQ, 计数数据落库
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_TO_DB_EXCHANGE,
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_FOLLOWINGS_FANS_TO_DB_EXCHANGE,
                         MQConstants.COUNT_FOLLOWINGS_TO_DB_ROUTING_KEY, countFollowUnfollowMqDTO);
                 log.info("==> 【计数服务：关注数入库】MQ 发送成功");
             } catch (AmqpException e) {

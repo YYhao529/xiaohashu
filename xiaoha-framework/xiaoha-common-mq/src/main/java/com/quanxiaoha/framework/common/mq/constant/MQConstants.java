@@ -43,19 +43,22 @@ public final class MQConstants {
 
     // ---------------------- 关注、取关计数变更消息 ----------------------
     // 关注表、粉丝表计数变更消息交换机
-    public static final String FOLLOWINGS_FANS_COUNT_EXCHANGE = COUNT_SERVICE_PREFIX + "followings.fans.direct";
+    public static final String COUNT_FOLLOWINGS_FANS_EXCHANGE = COUNT_SERVICE_PREFIX + "followings.fans.direct";
 
     // 关注表计数变更消息队列
-    public static final String FOLLOWINGS_COUNT_QUEUE = COUNT_SERVICE_PREFIX + "followings.queue";
+    public static final String COUNT_FOLLOWINGS_QUEUE = COUNT_SERVICE_PREFIX + "followings.queue";
 
     // 粉丝表计数变更消息队列
-    public static final String FANS_COUNT_QUEUE = COUNT_SERVICE_PREFIX + "fans.queue";
+    public static final String COUNT_FANS_QUEUE = COUNT_SERVICE_PREFIX + "fans.queue";
 
     // 关注表计数变更消息路由键
     public static final String COUNT_FOLLOWINGS_ROUTING_KEY = "count.followings";
 
     // 粉丝表计数变更消息路由键
     public static final String COUNT_FANS_ROUTING_KEY = "count.fans";
+
+    // 关注数、取关数对齐消息队列
+    public static final String COUNT_FOLLOWINGS_UNFOLLOW_ALIGN_QUEUE = DATA_ALIGN_SERVICE_PREFIX + "followings.unfollow.queue";
 
     // ---------------------- 本地笔记缓存、Redis 笔记缓存失效消息 ----------------------
     // 本地笔记缓存失效交换机
@@ -76,7 +79,7 @@ public final class MQConstants {
 
     // ---------------------- 关注数、粉丝数落库消息 ----------------------
     // 关注数、粉丝数落库消息交换机
-    public static final String FOLLOWINGS_FANS_TO_DB_EXCHANGE = COUNT_SERVICE_PREFIX + "followings.fans.2db.direct";
+    public static final String COUNT_FOLLOWINGS_FANS_TO_DB_EXCHANGE = COUNT_SERVICE_PREFIX + "followings.fans.2db.direct";
 
     // 关注数落库消息队列
     public static final String COUNT_FOLLOWINGS_TO_DB_QUEUE = COUNT_SERVICE_PREFIX + "followings.2db.queue";
@@ -125,13 +128,13 @@ public final class MQConstants {
 
     // ---------------------- 收藏、取消收藏笔记落库消息 ----------------------
     // 收藏、取消收藏笔记落库消息交换机
-    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_EXCHANGE = NOTE_SERVICE_PREFIX + "collect.2db.direct";
+    public static final String COLLECT_UNCOLLECTED_NOTE_TO_DB_EXCHANGE = NOTE_SERVICE_PREFIX + "collect.2db.direct";
 
     // 收藏、取消收藏笔记落库消息队列
-    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_QUEUE = NOTE_SERVICE_PREFIX + "collect.2db.queue";
+    public static final String COLLECT_UNCOLLECTED_NOTE_TO_DB_QUEUE = NOTE_SERVICE_PREFIX + "collect.2db.queue";
 
     // 收藏、取消收藏笔记落库消息路由键
-    public static final String COLLECT_UNCOLLECT_NOTE_TO_DB_ROUTING_KEY = "note.collect.2db";
+    public static final String COLLECT_UNCOLLECTED_NOTE_TO_DB_ROUTING_KEY = "note.collect.2db";
 
     // ---------------------- 笔记收藏数统计消息 ----------------------
     // 笔记收藏数统计消息交换机

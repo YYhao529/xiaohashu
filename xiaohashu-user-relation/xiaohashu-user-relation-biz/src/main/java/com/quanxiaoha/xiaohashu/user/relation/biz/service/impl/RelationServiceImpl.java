@@ -59,8 +59,6 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 关注用户
-     * @param followUserReqVO 关注用户请求参数
-     * @return 成功响应
      */
     @Override
     public Response<?> follow(FollowUserReqVO followUserReqVO) {
@@ -159,8 +157,6 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 取关用户
-     * @param unfollowUserReqVO 取关用户请求参数
-     * @return 成功响应
      */
     @Override
     public Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO) {
@@ -247,8 +243,6 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 查询用户关注列表
-     * @param findFollowingListReqVO 查询用户关注列表请求参数
-     * @return 查询用户关注列表响应参数
      */
     @Override
     public PageResponse<FindFollowingUserRspVO> findFollowingList(FindFollowingListReqVO findFollowingListReqVO) {
@@ -322,8 +316,6 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 查询粉丝列表
-     * @param findFansListReqVO 查询粉丝列表请求参数
-     * @return 查询粉丝列表响应参数
      */
     @Override
     public PageResponse<FindFansUserRspVO> findFansList(FindFansListReqVO findFansListReqVO) {

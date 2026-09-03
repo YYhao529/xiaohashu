@@ -44,7 +44,7 @@ public class CountFansConsumer {
             .setConsumerEx(this::consumeMessage)
             .build();
 
-    @RabbitListener(queues = MQConstants.FANS_COUNT_QUEUE)
+    @RabbitListener(queues = MQConstants.COUNT_FANS_QUEUE)
     public void consume(CountFollowUnfollowMqDTO message) {
         // 往 bufferTrigger 中添加元素
         bufferTrigger.enqueue(message);
@@ -109,7 +109,7 @@ public class CountFansConsumer {
         // 异步发送 MQ, 计数数据落库
         threadPoolTaskExecutor.submit(() -> {
             try {
-                rabbitTemplate.convertAndSend(MQConstants.FOLLOWINGS_FANS_TO_DB_EXCHANGE,
+                rabbitTemplate.convertAndSend(MQConstants.COUNT_FOLLOWINGS_FANS_TO_DB_EXCHANGE,
                         MQConstants.COUNT_FANS_TO_DB_ROUTING_KEY, JsonUtils.toJsonString(countMap));
                 log.info("==> 【计数服务：粉丝数入库】MQ 发送成功");
             } catch (AmqpException e) {
