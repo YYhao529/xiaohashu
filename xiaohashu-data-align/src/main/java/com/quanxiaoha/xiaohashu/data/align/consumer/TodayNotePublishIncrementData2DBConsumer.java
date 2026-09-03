@@ -2,11 +2,13 @@ package com.quanxiaoha.xiaohashu.data.align.consumer;
 
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.framework.common.util.JsonUtils;
+import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
 import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
 import com.quanxiaoha.xiaohashu.data.align.model.dto.NoteOperateMqDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,12 +35,8 @@ public class TodayNotePublishIncrementData2DBConsumer {
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private InsertRecordMapper insertRecordMapper;
-
-    /**
-     * 表总分片数
-     */
-    @Value("${table.shards}")
-    private int tableShards;
+    @Autowired
+    private TableConfig tableConfig;
 
     @RabbitListener(queues = MQConstants.COUNT_PUBLISH_NOTE_ALIGN_QUEUE)
     public void consume(String message) {
@@ -47,6 +45,9 @@ public class TodayNotePublishIncrementData2DBConsumer {
         NoteOperateMqDTO noteOperateMqDTO = JsonUtils.parseObject(message, NoteOperateMqDTO.class);
 
         if (Objects.isNull(noteOperateMqDTO)) return;
+
+        // 获取表分片数
+        int tableShards = tableConfig.getShards();
 
         // 创作人ID
         Long creatorId = noteOperateMqDTO.getCreatorId();
@@ -74,8 +75,8 @@ public class TodayNotePublishIncrementData2DBConsumer {
             insertRecordMapper.insert2DataAlignUserNotePublishCountTempTable(tableNameSuffix, creatorId);
 
             // 插入数据成功后，把创作者 ID 加入布隆过滤器
-            RedisScript<Long> redisScript=RedisScript.of("return redis.call('BF.ADD',KEYS[1],ARGV[1])",Long.class);
-            redisTemplate.execute(redisScript,List.of(bloomUserNoteOperateListKey),creatorId);
+            RedisScript<Long> redisScript = RedisScript.of("return redis.call('BF.ADD',KEYS[1],ARGV[1])", Long.class);
+            redisTemplate.execute(redisScript, List.of(bloomUserNoteOperateListKey), creatorId);
         }
     }
 }

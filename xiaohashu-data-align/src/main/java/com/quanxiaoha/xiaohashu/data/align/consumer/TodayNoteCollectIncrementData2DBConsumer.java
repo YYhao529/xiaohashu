@@ -3,6 +3,7 @@ package com.quanxiaoha.xiaohashu.data.align.consumer;
 import cn.hutool.core.util.StrUtil;
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.framework.common.util.JsonUtils;
+import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
 import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
@@ -37,9 +38,8 @@ public class TodayNoteCollectIncrementData2DBConsumer {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private InsertRecordMapper insertRecordMapper;
-
-    @Value("${table.shards}")
-    private int tableShards;
+    @Autowired
+    private TableConfig tableConfig;
 
     @RabbitListener(queues = MQConstants.COUNT_COLLECT_NOTE_ALIGN_QUEUE)
     public void consume(String message) {
@@ -48,6 +48,9 @@ public class TodayNoteCollectIncrementData2DBConsumer {
         CollectUnCollectNoteMqDTO collectUnCollectNoteMqDTO = JsonUtils.parseObject(message, CollectUnCollectNoteMqDTO.class);
 
         if (Objects.isNull(collectUnCollectNoteMqDTO)) return;
+
+        // 获取表总分片数
+        int tableShards = tableConfig.getShards();
 
         // 获取当前日期
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));

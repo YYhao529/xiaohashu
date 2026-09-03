@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +38,7 @@ public class CountFansConsumer {
     @Resource(name = "taskExecutor")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
-    private final BufferTrigger<CountFollowUnfollowMqDTO> bufferTrigger = BufferTrigger.<CountFollowUnfollowMqDTO>batchBlocking()
+    private final BufferTrigger<String> bufferTrigger = BufferTrigger.<String>batchBlocking()
             .bufferSize(50000) // 缓存队列的最大容量
             .batchSize(1000)   // 一批次最多聚合 1000 条
             .linger(Duration.ofSeconds(2)) // 多久聚合一次
@@ -45,17 +46,21 @@ public class CountFansConsumer {
             .build();
 
     @RabbitListener(queues = MQConstants.COUNT_FANS_QUEUE)
-    public void consume(CountFollowUnfollowMqDTO message) {
+    public void consume(String message) {
         // 往 bufferTrigger 中添加元素
         bufferTrigger.enqueue(message);
     }
 
-    private void consumeMessage(List<CountFollowUnfollowMqDTO> bodys) {
+    private void consumeMessage(List<String> bodys) {
         log.info("==> 聚合消息, size: {}", bodys.size());
         log.info("==> 聚合消息, {}", JsonUtils.toJsonString(bodys));
 
+        List<CountFollowUnfollowMqDTO> objList=bodys.stream()
+                .map(s -> JsonUtils.parseObject(s, CountFollowUnfollowMqDTO.class))
+                .toList();
+
         // 按目标用户进行分组
-        Map<Long, List<CountFollowUnfollowMqDTO>> groupMap = bodys.stream()
+        Map<Long, List<CountFollowUnfollowMqDTO>> groupMap = objList.stream()
                 .collect(Collectors.groupingBy(CountFollowUnfollowMqDTO::getTargetUserId));
 
         // 按组汇总数据，统计出最终的计数

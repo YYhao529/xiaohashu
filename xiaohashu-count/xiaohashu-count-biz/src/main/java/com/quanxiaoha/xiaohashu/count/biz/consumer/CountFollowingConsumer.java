@@ -1,6 +1,7 @@
 package com.quanxiaoha.xiaohashu.count.biz.consumer;
 
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
+import com.quanxiaoha.framework.common.util.JsonUtils;
 import com.quanxiaoha.xiaohashu.count.biz.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.count.biz.enums.FollowUnfollowTypeEnum;
 import com.quanxiaoha.xiaohashu.count.biz.model.dto.CountFollowUnfollowMqDTO;
@@ -31,8 +32,9 @@ public class CountFollowingConsumer {
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @RabbitListener(queues = MQConstants.COUNT_FOLLOWINGS_QUEUE)
-    public void consume(CountFollowUnfollowMqDTO countFollowUnfollowMqDTO) {
-        log.info("## 消费到了 MQ 【计数: 关注数】, {}...", countFollowUnfollowMqDTO);
+    public void consume(String message) {
+        log.info("## 消费到了 MQ 【计数: 关注数】, {}...", message);
+        CountFollowUnfollowMqDTO countFollowUnfollowMqDTO = JsonUtils.parseObject(message, CountFollowUnfollowMqDTO.class);
 
         if (Objects.isNull(countFollowUnfollowMqDTO)) return;
 

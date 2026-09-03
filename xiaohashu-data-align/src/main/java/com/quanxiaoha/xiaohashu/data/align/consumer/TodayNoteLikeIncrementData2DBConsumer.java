@@ -3,6 +3,7 @@ package com.quanxiaoha.xiaohashu.data.align.consumer;
 import cn.hutool.core.util.StrUtil;
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
 import com.quanxiaoha.framework.common.util.JsonUtils;
+import com.quanxiaoha.xiaohashu.data.align.config.TableConfig;
 import com.quanxiaoha.xiaohashu.data.align.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.data.align.constant.TableConstants;
 import com.quanxiaoha.xiaohashu.data.align.domain.mapper.InsertRecordMapper;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *  日增量数据落库：笔记点赞、取消点赞
+ * 日增量数据落库：笔记点赞、取消点赞
  */
 @Component
 @Slf4j
@@ -37,12 +38,8 @@ public class TodayNoteLikeIncrementData2DBConsumer {
     private InsertRecordMapper insertRecordMapper;
     @Autowired
     private TransactionTemplate transactionTemplate;
-
-    /**
-     * 表总分片数
-     */
-    @Value("${table.shards}")
-    private int tableShards;
+    @Autowired
+    private TableConfig tableConfig;
 
     @RabbitListener(queues = MQConstants.COUNT_LIKE_NOTE_ALIGN_QUEUE)
     public void consume(String message) {
@@ -52,6 +49,9 @@ public class TodayNoteLikeIncrementData2DBConsumer {
         LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO = JsonUtils.parseObject(message, LikeUnlikeNoteMqDTO.class);
 
         if (Objects.isNull(likeUnlikeNoteMqDTO)) return;
+
+        // 获取表总分片数
+        int tableShards = tableConfig.getShards();
 
         Long noteCreatorId = likeUnlikeNoteMqDTO.getNoteCreatorId();  // 笔记创建者
         Long noteId = likeUnlikeNoteMqDTO.getNoteId();  // 笔记 ID
