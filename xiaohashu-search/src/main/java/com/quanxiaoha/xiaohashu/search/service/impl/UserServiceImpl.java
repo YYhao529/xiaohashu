@@ -1,8 +1,10 @@
 package com.quanxiaoha.xiaohashu.search.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.quanxiaoha.framework.common.response.PageResponse;
+import com.quanxiaoha.framework.common.util.NumberUtils;
 import com.quanxiaoha.xiaohashu.search.index.UserIndex;
 import com.quanxiaoha.xiaohashu.search.model.vo.SearchUserReqVO;
 import com.quanxiaoha.xiaohashu.search.model.vo.SearchUserRspVO;
@@ -12,9 +14,12 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,13 +59,14 @@ public class UserServiceImpl implements UserService {
         searchRequest.source().query(QueryBuilders.multiMatchQuery(keyword, UserIndex.FIELD_USER_NICKNAME, UserIndex.FIELD_USER_XIAOHASHU_ID))
                 .sort(UserIndex.FIELD_USER_FANS_TOTAL, SortOrder.DESC)  // 排序，按 fans_total 降序
                 .from(from)
-                .size(pageSize);
+                .size(pageSize)
+                .highlighter(new HighlightBuilder().field(UserIndex.FIELD_USER_NICKNAME).preTags("<strong>").postTags("</strong>"));
 
         // 返参 VO 集合
         List<SearchUserRspVO> searchUserRspVOS = null;
         // 总文档数，默认为 0
         long total = 0;
-        try{
+        try {
             log.info("==> SearchRequest: {}", searchRequest);
 
             // 执行查询请求
@@ -79,12 +85,19 @@ public class UserServiceImpl implements UserService {
                 // 获取文档的所有字段
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
 
+                // 获取高亮字段
+                String highlightNickname = null;
+
                 Long userId = Long.valueOf(sourceAsMap.get(UserIndex.FIELD_USER_ID).toString());
                 String nickname = (String) sourceAsMap.get(UserIndex.FIELD_USER_NICKNAME);
                 String avatar = (String) sourceAsMap.get(UserIndex.FIELD_USER_AVATAR);
                 String xiaohashuId = (String) sourceAsMap.get(UserIndex.FIELD_USER_XIAOHASHU_ID);
                 Integer noteTotal = (Integer) sourceAsMap.get(UserIndex.FIELD_USER_NOTE_TOTAL);
                 Integer fansTotal = (Integer) sourceAsMap.get(UserIndex.FIELD_USER_FANS_TOTAL);
+                if (CollUtil.isNotEmpty(hit.getHighlightFields())
+                        && hit.getHighlightFields().containsKey(UserIndex.FIELD_USER_NICKNAME)) {
+                    highlightNickname = hit.getHighlightFields().get(UserIndex.FIELD_USER_NICKNAME).fragments()[0].string();
+                }
 
                 // 构建 VO 实体类
                 SearchUserRspVO searchUserRspVO = SearchUserRspVO.builder()
@@ -93,14 +106,15 @@ public class UserServiceImpl implements UserService {
                         .avatar(avatar)
                         .xiaohashuId(xiaohashuId)
                         .noteTotal(noteTotal)
-                        .fansTotal(fansTotal)
+                        .fansTotal(NumberUtils.formatNumberString(fansTotal))
+                        .highlightNickname(highlightNickname)
                         .build();
                 searchUserRspVOS.add(searchUserRspVO);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("==> 查询 Elasticsearch 异常: ", e);
         }
 
-        return PageResponse.success(searchUserRspVOS, pageNo,total);
+        return PageResponse.success(searchUserRspVOS, pageNo, total);
     }
 }

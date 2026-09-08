@@ -25,6 +25,11 @@ public class SearchUserRspVO {
     private String nickname;
 
     /**
+     * 昵称：关键词高亮
+     */
+    private String highlightNickname;
+
+    /**
      * 头像
      */
     private String avatar;
@@ -42,6 +47,6 @@ public class SearchUserRspVO {
     /**
      * 粉丝总数
      */
-    private Integer fansTotal;
+    private String fansTotal;
 
 }
