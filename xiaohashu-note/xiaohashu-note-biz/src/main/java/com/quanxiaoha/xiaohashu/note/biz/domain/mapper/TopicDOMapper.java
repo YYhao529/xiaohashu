@@ -1,6 +1,7 @@
 package com.quanxiaoha.xiaohashu.note.biz.domain.mapper;
 
 import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.TopicDO;
+import org.apache.ibatis.annotations.Param;
 
 public interface TopicDOMapper {
     int deleteByPrimaryKey(Long id);
@@ -16,4 +17,9 @@ public interface TopicDOMapper {
     int updateByPrimaryKey(TopicDO record);
 
     String selectNameByPrimaryKey(Long id);
+
+    /**
+     * 根据话题名称查询话题
+     */
+    TopicDO selectByName(@Param("name") String name);
 }

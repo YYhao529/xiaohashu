@@ -17,6 +17,9 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="content_uuid" jdbcType="VARCHAR" property="contentUuid"/>
+        <!-- 联表 t_note_count 得到的计数（非 t_note 字段） -->
+        <result column="like_total" jdbcType="BIGINT" property="likeTotal"/>
+        <result column="collect_total" jdbcType="BIGINT" property="collectTotal"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, title, is_content_empty, creator_id, topic_id, topic_name, is_top, `type`, img_uris,
@@ -210,7 +213,7 @@
             content_uuid     = #{contentUuid,jdbcType=VARCHAR}
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateVisibleOnlyMe" parameterType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteDO">
+    <update id="updateVisible" parameterType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteDO">
         update t_note
         set visible = #{visible,jdbcType=TINYINT},
             update_time = #{updateTime,jdbcType=TIMESTAMP}
@@ -223,4 +226,40 @@
         where id = #{id,jdbcType=BIGINT} and `status` = 1
     </update>
 
+    <select id="selectCountByCreatorId" resultType="int">
+        select count(1) from t_note
+        where creator_id = #{creatorId,jdbcType=BIGINT} and `status` = 1
+        <if test="!includePrivate">
+            and visible = 0
+        </if>
+    </select>
+    <select id="selectPageByCreatorId" resultMap="BaseResultMap">
+        select
+            n.id, n.title, n.is_content_empty, n.creator_id, n.topic_id, n.topic_name, n.is_top,
+            n.`type`, n.img_uris, n.video_uri, n.visible, n.create_time, n.update_time, n.`status`, n.content_uuid,
+            ifnull(nc.like_total, 0) as like_total,
+            ifnull(nc.collect_total, 0) as collect_total
+        from t_note n
+        left join t_note_count nc on nc.note_id = n.id
+        where n.creator_id = #{creatorId,jdbcType=BIGINT} and n.`status` = 1
+        <if test="!includePrivate">
+            and n.visible = 0
+        </if>
+        order by n.is_top desc, n.create_time desc
+        limit #{start,jdbcType=BIGINT}, #{limit,jdbcType=BIGINT}
+    </select>
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select
+            n.id, n.title, n.is_content_empty, n.creator_id, n.topic_id, n.topic_name, n.is_top,
+            n.`type`, n.img_uris, n.video_uri, n.visible, n.create_time, n.update_time, n.`status`, n.content_uuid,
+            ifnull(nc.like_total, 0) as like_total,
+            ifnull(nc.collect_total, 0) as collect_total
+        from t_note n
+        left join t_note_count nc on nc.note_id = n.id
+        where n.`status` = 1
+        and n.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
 </mapper>

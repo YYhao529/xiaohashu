@@ -46,6 +46,11 @@ public class NoteIndex {
     public static final String FIELD_NOTE_TYPE = "type";
 
     /**
+     * 视频地址（视频笔记用来做列表内预览）
+     */
+    public static final String FIELD_NOTE_VIDEO_URI = "video_uri";
+
+    /**
      * 发布时间
      */
     public static final String FIELD_NOTE_CREATE_TIME = "create_time";

@@ -33,4 +33,9 @@ public class FindUserByIdRspDTO {
      * 简介
      */
     private String introduction;
+
+    /**
+     * 背景图
+     */
+    private String backgroundImg;
 }

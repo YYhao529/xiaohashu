@@ -26,6 +26,14 @@
     <select id="selectNoteIsLiked" resultType="int">
       select count(1) from t_note_like where user_id = #{userId} and note_id = #{noteId} and status = 1 limit 1
     </select>
+    <select id="selectLikedNoteIds" resultType="java.lang.Long">
+      select note_id from t_note_like
+      where user_id = #{userId} and status = 1
+      and note_id in
+      <foreach collection="noteIds" item="noteId" open="(" separator="," close=")">
+        #{noteId,jdbcType=BIGINT}
+      </foreach>
+    </select>
     <select id="selectLikedByUserIdAndLimit"
             resultType="com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteLikeDO">
       select note_id, create_time from t_note_like
@@ -113,4 +121,24 @@
     update t_note_like set `status` = #{status}, create_time = #{createTime}
     where user_id = #{userId} and note_id = #{noteId} and status = 1
   </update>
+  <select id="selectCountByUserId" resultType="int">
+    select count(1)
+    from t_note_like l
+    inner join t_note n on n.id = l.note_id
+    where l.user_id = #{userId,jdbcType=BIGINT}
+      and l.`status` = 1
+      and n.`status` = 1
+      and (n.visible = 0 or n.creator_id = #{currentUserId,jdbcType=BIGINT})
+  </select>
+  <select id="selectPageByUserId" resultMap="BaseResultMap">
+    select l.id, l.user_id, l.note_id, l.create_time, l.`status`
+    from t_note_like l
+    inner join t_note n on n.id = l.note_id
+    where l.user_id = #{userId,jdbcType=BIGINT}
+      and l.`status` = 1
+      and n.`status` = 1
+      and (n.visible = 0 or n.creator_id = #{currentUserId,jdbcType=BIGINT})
+    order by l.create_time desc
+    limit #{start,jdbcType=BIGINT}, #{limit,jdbcType=BIGINT}
+  </select>
 </mapper>

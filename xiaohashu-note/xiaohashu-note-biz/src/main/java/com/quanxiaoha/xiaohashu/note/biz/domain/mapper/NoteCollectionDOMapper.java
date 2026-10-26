@@ -34,6 +34,21 @@ public interface NoteCollectionDOMapper {
     List<NoteCollectionDO> selectCollectedByUserIdAndLimit(@Param("userId") Long userId, @Param("limit") int limit);
 
     /**
+     * 统计用户收藏的笔记数量（不含「仅作者自己可见」的笔记）
+     *
+     * @param currentUserId 当前登录用户 ID，用于放行其自己的私密笔记
+     */
+    int selectCountByUserId(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId);
+
+    /**
+     * 分页查询用户收藏的笔记（按收藏时间倒序）
+     */
+    List<NoteCollectionDO> selectPageByUserId(@Param("userId") Long userId,
+                                              @Param("currentUserId") Long currentUserId,
+                                              @Param("start") long start,
+                                              @Param("limit") long limit);
+
+    /**
      * 新增笔记收藏记录，若已存在，则更新笔记收藏记录
      */
     int insertOrUpdate(NoteCollectionDO noteCollectionDO);

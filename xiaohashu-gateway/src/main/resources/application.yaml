@@ -1,6 +1,9 @@
 server:
   port: 8000 # 指定启动端口
 spring:
+  codec:
+    # 上传头像/背景图的 multipart 请求经过网关时的缓冲上限
+    max-in-memory-size: 20MB
   cloud:
     gateway:
       routes:
@@ -10,24 +13,22 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+        # 注意：user / note / relation 三个服务的控制器自带类级前缀
+        # （@RequestMapping("/user")、"/note"、"/relation"），
+        # 所以这里不能再 StripPrefix，否则 /user/findByPhone 会被转发成 /findByPhone 而 404。
+        # 只有 auth 服务的控制器没有类级前缀（/login、/logout），才需要 StripPrefix=1。
         - id: user
           uri: lb://xiaohashu-user
           predicates:
             - Path=/user/**
-          filters:
-            - StripPrefix=1
         - id: note
           uri: lb://xiaohashu-note
           predicates:
             - Path=/note/**
-          filters:
-            - StripPrefix=1
         - id: user-relation
           uri: lb://xiaohashu-user-relation
           predicates:
             - Path=/relation/**
-          filters:
-            - StripPrefix=1
   data:
     redis:
       database: 0 # Redis 数据库索引（默认为 0）

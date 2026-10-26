@@ -12,6 +12,11 @@ public interface UserCountDOMapper {
 
     UserCountDO selectByPrimaryKey(Long id);
 
+    /**
+     * 根据用户 ID 查询计数
+     */
+    UserCountDO selectByUserId(@Param("userId") Long userId);
+
     int updateByPrimaryKeySelective(UserCountDO record);
 
     int updateByPrimaryKey(UserCountDO record);

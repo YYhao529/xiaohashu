@@ -38,6 +38,11 @@ public class RedisKeyConstants {
     public static final String FIELD_COLLECT_TOTAL = "collectTotal";
 
     /**
+     * Hash Field: 笔记评论总数
+     */
+    public static final String FIELD_COMMENT_TOTAL = "commentTotal";
+
+    /**
      * 构建用户维度计数 Key
      */
     public static String buildCountUserKey(Long userId) {

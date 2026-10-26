@@ -1,7 +1,10 @@
 package com.quanxiaoha.xiaohashu.note.biz.service;
 
+import com.quanxiaoha.framework.common.response.PageResponse;
 import com.quanxiaoha.framework.common.response.Response;
 import com.quanxiaoha.xiaohashu.note.biz.model.vo.*;
+
+import java.util.List;
 
 public interface NoteService {
 
@@ -36,6 +39,11 @@ public interface NoteService {
     Response<?> visibleOnlyMe(UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO);
 
     /**
+     * 笔记设为公开可见（从私密恢复）
+     */
+    Response<?> visiblePublic(UpdateNoteVisiblePublicReqVO updateNoteVisiblePublicReqVO);
+
+    /**
      * 笔记置顶/取消置顶
      */
     Response<?> topNote(TopNoteReqVO topNoteReqVO);
@@ -59,4 +67,24 @@ public interface NoteService {
      * 取消收藏笔记
      */
     Response<?> unCollectNote(UnCollectNoteReqVO unCollectNoteReqVO);
+
+    /**
+     * 分页查询用户发布的笔记
+     */
+    PageResponse<FindNoteListItemRspVO> findPublishNoteList(FindUserNoteListReqVO findUserNoteListReqVO);
+
+    /**
+     * 分页查询用户收藏的笔记
+     */
+    PageResponse<FindNoteListItemRspVO> findCollectNoteList(FindUserNoteListReqVO findUserNoteListReqVO);
+
+    /**
+     * 分页查询用户点赞的笔记
+     */
+    PageResponse<FindNoteListItemRspVO> findLikeNoteList(FindUserNoteListReqVO findUserNoteListReqVO);
+
+    /**
+     * 批量查询当前用户已点赞的笔记 ID（返回字符串，避免前端 Long 精度丢失）
+     */
+    Response<List<String>> findLikedNoteIds(FindNoteLikedStatusReqVO findNoteLikedStatusReqVO);
 }

@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.quanxiaoha.framework.biz.context.holder.LoginUserContextHolder;
 import com.quanxiaoha.framework.common.exception.BizException;
 import com.quanxiaoha.framework.common.mq.constant.MQConstants;
+import com.quanxiaoha.framework.common.response.PageResponse;
 import com.quanxiaoha.framework.common.response.Response;
 import com.quanxiaoha.framework.common.util.DateUtils;
 import com.quanxiaoha.framework.common.util.JsonUtils;
@@ -16,6 +17,7 @@ import com.quanxiaoha.xiaohashu.note.biz.constant.RedisKeyConstants;
 import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteCollectionDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.NoteLikeDO;
+import com.quanxiaoha.xiaohashu.note.biz.domain.dataobject.TopicDO;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteCollectionDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteDOMapper;
 import com.quanxiaoha.xiaohashu.note.biz.domain.mapper.NoteLikeDOMapper;
@@ -146,17 +148,8 @@ public class NoteServiceImpl implements NoteService {
             }
         }
 
-        // 话题
-        Long topicId = publishNoteReqVO.getTopicId();
-        String topicName = null;
-        if (Objects.nonNull(topicId)) {
-            // 根据话题 ID 去查询话题名称
-            topicName = topicDOMapper.selectNameByPrimaryKey(topicId);
-            // 校验话题是否存在
-            if (StringUtils.isBlank(topicName)) {
-                throw new BizException(ResponseCodeEnum.TOPIC_NOT_FOUND);
-            }
-        }
+        // 话题（支持按话题名称关联，话题不存在时自动创建）
+        TopicDO topicDO = resolveTopic(publishNoteReqVO.getTopicId(), publishNoteReqVO.getTopicName());
 
         // 发布者用户 ID
         Long creatorId = LoginUserContextHolder.getUserId();
@@ -168,8 +161,8 @@ public class NoteServiceImpl implements NoteService {
                 .creatorId(creatorId)
                 .imgUris(imgUris)
                 .title(publishNoteReqVO.getTitle())
-                .topicId(publishNoteReqVO.getTopicId())
-                .topicName(topicName)
+                .topicId(Objects.nonNull(topicDO) ? topicDO.getId() : null)
+                .topicName(Objects.nonNull(topicDO) ? topicDO.getName() : null)
                 .type(type)
                 .visible(NoteVisibleEnum.PUBLIC.getCode())
                 .createTime(LocalDateTime.now())
@@ -382,17 +375,10 @@ public class NoteServiceImpl implements NoteService {
         }
 
         /* ------------------------------- 话题名称 ------------------------------- */
-        // 获取笔记的话题
-        Long topicId = updateNoteReqVO.getTopicId();
-        String topicName = null;
-        if (Objects.nonNull(topicId)) {
-            // 根据话题 ID 获取话题名称
-            topicName = topicDOMapper.selectNameByPrimaryKey(topicId);
-            // 校验话题是否存在
-            if (StringUtils.isBlank(topicName)) {
-                throw new BizException(ResponseCodeEnum.TOPIC_NOT_FOUND);
-            }
-        }
+        // 获取笔记的话题（支持按话题名称关联，话题不存在时自动创建）
+        TopicDO topicDO = resolveTopic(updateNoteReqVO.getTopicId(), updateNoteReqVO.getTopicName());
+        Long topicId = Objects.nonNull(topicDO) ? topicDO.getId() : null;
+        String topicName = Objects.nonNull(topicDO) ? topicDO.getName() : null;
 
         // 删除 Redis 缓存
         try {
@@ -535,7 +521,7 @@ public class NoteServiceImpl implements NoteService {
                 .build();
 
         // 执行更新 SQL
-        int result = noteDOMapper.updateVisibleOnlyMe(noteDO);
+        int result = noteDOMapper.updateVisible(noteDO);
 
         // 如果影响行数为0，说明该笔记无法修改为仅自己可见
         if (result == 0) {
@@ -543,6 +529,41 @@ public class NoteServiceImpl implements NoteService {
         }
 
         // 异步向 MQ 发送删除缓存的消息
+        threadPoolTaskExecutor.submit(() -> {
+            sendLocalCacheInvalidateMessage(noteId);
+            sendRedisCacheInvalidateMessage(noteId);
+        });
+
+        return Response.success();
+    }
+
+    /**
+     * 笔记设为公开可见（从私密恢复）
+     */
+    @Override
+    public Response<?> visiblePublic(UpdateNoteVisiblePublicReqVO updateNoteVisiblePublicReqVO) {
+        Long noteId = updateNoteVisiblePublicReqVO.getId();
+        Long userId = LoginUserContextHolder.getUserId();
+
+        // 校验笔记所有者
+        getNoteAndCheckOwner(noteId, userId);
+
+        // 构建更新 DO 实体类
+        NoteDO noteDO = NoteDO.builder()
+                .id(noteId)
+                .visible(NoteVisibleEnum.PUBLIC.getCode())
+                .updateTime(LocalDateTime.now())
+                .build();
+
+        // 执行更新 SQL
+        int result = noteDOMapper.updateVisible(noteDO);
+
+        // 如果影响行数为 0，说明该笔记无法恢复为公开
+        if (result == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_VISIBLE_PUBLIC);
+        }
+
+        // 异步删除详情缓存（恢复公开后，ES 索引由 Canal 监听 t_note 更新自动重新同步）
         threadPoolTaskExecutor.submit(() -> {
             sendLocalCacheInvalidateMessage(noteId);
             sendRedisCacheInvalidateMessage(noteId);
@@ -1252,6 +1273,47 @@ public class NoteServiceImpl implements NoteService {
     }
 
     /**
+     * 解析笔记话题：优先按话题名称关联（不存在则自动创建），其次按话题 ID 关联
+     */
+    private TopicDO resolveTopic(Long topicId, String topicName) {
+        // 按话题名称关联
+        if (StringUtils.isNotBlank(topicName)) {
+            String name = topicName.trim();
+
+            // 查询话题是否已存在
+            TopicDO topicDO = topicDOMapper.selectByName(name);
+            if (Objects.nonNull(topicDO)) {
+                return topicDO;
+            }
+
+            // 话题不存在，则自动创建
+            topicDO = TopicDO.builder()
+                    .id(Long.valueOf(distributedIdGeneratorRpcService.getSnowflakeId()))
+                    .name(name)
+                    .createTime(LocalDateTime.now())
+                    .updateTime(LocalDateTime.now())
+                    .isDeleted(Boolean.FALSE)
+                    .build();
+            topicDOMapper.insertSelective(topicDO);
+            log.info("==> 话题不存在，自动创建话题，id: {}, name: {}", topicDO.getId(), name);
+            return topicDO;
+        }
+
+        // 按话题 ID 关联
+        if (Objects.nonNull(topicId)) {
+            // 根据话题 ID 获取话题名称
+            String name = topicDOMapper.selectNameByPrimaryKey(topicId);
+            // 校验话题是否存在
+            if (StringUtils.isBlank(name)) {
+                throw new BizException(ResponseCodeEnum.TOPIC_NOT_FOUND);
+            }
+            return TopicDO.builder().id(topicId).name(name).build();
+        }
+
+        return null;
+    }
+
+    /**
      * 校验笔记的可见性
      */
     private void checkNoteVisible(Integer visible, Long currUserId, Long creatorId) {
@@ -1276,5 +1338,226 @@ public class NoteServiceImpl implements NoteService {
      */
     public void deleteNoteLocalCache(Long noteId) {
         LOCAL_CACHE.invalidate(noteId);
+    }
+
+    /**
+     * 批量查询当前用户已点赞的笔记 ID（返回字符串，避免前端 Long 精度丢失）
+     */
+    @Override
+    public Response<List<String>> findLikedNoteIds(FindNoteLikedStatusReqVO findNoteLikedStatusReqVO) {
+        // 未登录直接返回空集合
+        Long userId = LoginUserContextHolder.getUserId();
+        if (Objects.isNull(userId)) {
+            return Response.success(Collections.emptyList());
+        }
+
+        List<Long> noteIds = findNoteLikedStatusReqVO.getNoteIds();
+        if (CollUtil.isEmpty(noteIds)) {
+            return Response.success(Collections.emptyList());
+        }
+
+        List<String> likedNoteIds = noteLikeDOMapper.selectLikedNoteIds(userId, noteIds)
+                .stream()
+                .map(String::valueOf)
+                .toList();
+
+        return Response.success(likedNoteIds);
+    }
+
+    /**
+     * 分页查询用户发布的笔记
+     */
+    @Override
+    public PageResponse<FindNoteListItemRspVO> findPublishNoteList(FindUserNoteListReqVO findUserNoteListReqVO) {
+        Long userId = findUserNoteListReqVO.getUserId();
+        long pageNo = Objects.isNull(findUserNoteListReqVO.getPageNo()) ? 1L : findUserNoteListReqVO.getPageNo();
+        long limit = 10L;
+
+        // 只有查自己时，才返回「仅自己可见」的笔记
+        Long currentUserId = LoginUserContextHolder.getUserId();
+        boolean includePrivate = Objects.nonNull(currentUserId) && currentUserId.equals(userId);
+
+        // 查询总数
+        int total = noteDOMapper.selectCountByCreatorId(userId, includePrivate);
+        if (total <= 0) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 计算分页
+        long start = PageResponse.getOffset(pageNo, limit);
+        if (pageNo > PageResponse.getTotalPage(total, limit)) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 查询当前页笔记
+        List<NoteDO> noteDOS = noteDOMapper.selectPageByCreatorId(userId, includePrivate, start, limit);
+
+        // 组装返参
+        List<FindNoteListItemRspVO> items = buildNoteListItems(noteDOS, Collections.emptyMap());
+        return PageResponse.success(items, pageNo, total);
+    }
+
+    /**
+     * 分页查询用户收藏的笔记
+     */
+    @Override
+    public PageResponse<FindNoteListItemRspVO> findCollectNoteList(FindUserNoteListReqVO findUserNoteListReqVO) {
+        Long userId = findUserNoteListReqVO.getUserId();
+        long pageNo = Objects.isNull(findUserNoteListReqVO.getPageNo()) ? 1L : findUserNoteListReqVO.getPageNo();
+        long limit = 10L;
+        Long currentUserId = LoginUserContextHolder.getUserId();
+
+        // 查询总数（不含已删除、已取消收藏、他人私密的笔记）
+        int total = noteCollectionDOMapper.selectCountByUserId(userId, currentUserId);
+        if (total <= 0) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 计算分页
+        long start = PageResponse.getOffset(pageNo, limit);
+        if (pageNo > PageResponse.getTotalPage(total, limit)) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 查询当前页收藏记录
+        List<NoteCollectionDO> noteCollectionDOS = noteCollectionDOMapper.selectPageByUserId(userId, currentUserId, start, limit);
+        if (CollUtil.isEmpty(noteCollectionDOS)) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 保持收藏时间顺序，并记录收藏时间
+        List<Long> noteIds = new ArrayList<>();
+        Map<Long, LocalDateTime> actionTimeMap = new HashMap<>();
+        for (NoteCollectionDO noteCollectionDO : noteCollectionDOS) {
+            noteIds.add(noteCollectionDO.getNoteId());
+            actionTimeMap.put(noteCollectionDO.getNoteId(), noteCollectionDO.getCreateTime());
+        }
+
+        List<NoteDO> noteDOS = selectNotesByIdsInOrder(noteIds);
+        List<FindNoteListItemRspVO> items = buildNoteListItems(noteDOS, actionTimeMap);
+        return PageResponse.success(items, pageNo, total);
+    }
+
+    /**
+     * 分页查询用户点赞的笔记
+     */
+    @Override
+    public PageResponse<FindNoteListItemRspVO> findLikeNoteList(FindUserNoteListReqVO findUserNoteListReqVO) {
+        Long userId = findUserNoteListReqVO.getUserId();
+        long pageNo = Objects.isNull(findUserNoteListReqVO.getPageNo()) ? 1L : findUserNoteListReqVO.getPageNo();
+        long limit = 10L;
+        Long currentUserId = LoginUserContextHolder.getUserId();
+
+        // 查询总数（不含已删除、已取消点赞、他人私密的笔记）
+        int total = noteLikeDOMapper.selectCountByUserId(userId, currentUserId);
+        if (total <= 0) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 计算分页
+        long start = PageResponse.getOffset(pageNo, limit);
+        if (pageNo > PageResponse.getTotalPage(total, limit)) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 查询当前页点赞记录
+        List<NoteLikeDO> noteLikeDOS = noteLikeDOMapper.selectPageByUserId(userId, currentUserId, start, limit);
+        if (CollUtil.isEmpty(noteLikeDOS)) {
+            return PageResponse.success(Collections.emptyList(), pageNo, total);
+        }
+
+        // 保持点赞时间顺序，并记录点赞时间
+        List<Long> noteIds = new ArrayList<>();
+        Map<Long, LocalDateTime> actionTimeMap = new HashMap<>();
+        for (NoteLikeDO noteLikeDO : noteLikeDOS) {
+            noteIds.add(noteLikeDO.getNoteId());
+            actionTimeMap.put(noteLikeDO.getNoteId(), noteLikeDO.getCreateTime());
+        }
+
+        List<NoteDO> noteDOS = selectNotesByIdsInOrder(noteIds);
+        List<FindNoteListItemRspVO> items = buildNoteListItems(noteDOS, actionTimeMap);
+        return PageResponse.success(items, pageNo, total);
+    }
+
+    /**
+     * 根据笔记 ID 批量查询笔记，并保持传入的顺序
+     */
+    private List<NoteDO> selectNotesByIdsInOrder(List<Long> noteIds) {
+        if (CollUtil.isEmpty(noteIds)) {
+            return Collections.emptyList();
+        }
+
+        List<NoteDO> noteDOS = noteDOMapper.selectByIds(noteIds);
+        if (CollUtil.isEmpty(noteDOS)) {
+            return Collections.emptyList();
+        }
+
+        Map<Long, NoteDO> noteMap = new HashMap<>();
+        for (NoteDO noteDO : noteDOS) {
+            noteMap.put(noteDO.getId(), noteDO);
+        }
+
+        List<NoteDO> orderedNoteDOS = new ArrayList<>();
+        for (Long noteId : noteIds) {
+            NoteDO noteDO = noteMap.get(noteId);
+            if (Objects.nonNull(noteDO)) {
+                orderedNoteDOS.add(noteDO);
+            }
+        }
+        return orderedNoteDOS;
+    }
+
+    /**
+     * 组装笔记列表条目（含作者昵称、头像、封面）
+     */
+    private List<FindNoteListItemRspVO> buildNoteListItems(List<NoteDO> noteDOS, Map<Long, LocalDateTime> actionTimeMap) {
+        if (CollUtil.isEmpty(noteDOS)) {
+            return Collections.emptyList();
+        }
+
+        // 批量查询作者昵称、头像
+        List<Long> creatorIds = new ArrayList<>();
+        for (NoteDO noteDO : noteDOS) {
+            if (Objects.nonNull(noteDO.getCreatorId()) && !creatorIds.contains(noteDO.getCreatorId())) {
+                creatorIds.add(noteDO.getCreatorId());
+            }
+        }
+        Map<Long, FindUserByIdRspDTO> creatorMap = new HashMap<>();
+        for (FindUserByIdRspDTO creator : userRpcService.findByIds(creatorIds)) {
+            creatorMap.put(creator.getId(), creator);
+        }
+
+        List<FindNoteListItemRspVO> items = new ArrayList<>();
+        for (NoteDO noteDO : noteDOS) {
+            FindUserByIdRspDTO creator = creatorMap.get(noteDO.getCreatorId());
+
+            // 封面取第一张图
+            String cover = null;
+            if (StringUtils.isNotBlank(noteDO.getImgUris())) {
+                String[] imgUris = noteDO.getImgUris().split(",");
+                if (imgUris.length > 0 && StringUtils.isNotBlank(imgUris[0])) {
+                    cover = imgUris[0];
+                }
+            }
+
+            items.add(FindNoteListItemRspVO.builder()
+                    .noteId(noteDO.getId())
+                    .type(noteDO.getType())
+                    .title(noteDO.getTitle())
+                    .cover(cover)
+                    .videoUri(noteDO.getVideoUri())
+                    .visible(noteDO.getVisible())
+                    .isTop(noteDO.getIsTop())
+                    .createTime(noteDO.getCreateTime())
+                    .updateTime(noteDO.getUpdateTime())
+                    .actionTime(actionTimeMap.get(noteDO.getId()))
+                    .creatorId(noteDO.getCreatorId())
+                    .creatorName(Objects.nonNull(creator) ? creator.getNickname() : null)
+                    .avatar(Objects.nonNull(creator) ? creator.getAvatar() : null)
+                    .likeTotal(Objects.isNull(noteDO.getLikeTotal()) ? 0L : noteDO.getLikeTotal())
+                    .collectTotal(Objects.isNull(noteDO.getCollectTotal()) ? 0L : noteDO.getCollectTotal())
+                    .build());
+        }
+        return items;
     }
 }

@@ -12,6 +12,11 @@ public interface NoteCountDOMapper {
 
     NoteCountDO selectByPrimaryKey(Long id);
 
+    /**
+     * 根据笔记 ID 查询计数
+     */
+    NoteCountDO selectByNoteId(@Param("noteId") Long noteId);
+
     int updateByPrimaryKeySelective(NoteCountDO record);
 
     int updateByPrimaryKey(NoteCountDO record);

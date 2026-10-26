@@ -41,4 +41,14 @@ public class NoteDO {
     private Integer status;
 
     private String contentUuid;
+
+    /**
+     * 点赞总数（联表 t_note_count 查询得到，非 t_note 表字段）
+     */
+    private Long likeTotal;
+
+    /**
+     * 收藏总数（联表 t_note_count 查询得到，非 t_note 表字段）
+     */
+    private Long collectTotal;
 }

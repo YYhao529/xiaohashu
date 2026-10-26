@@ -1,6 +1,7 @@
 package com.quanxiaoha.xiaohashu.note.biz.controller;
 
 import com.quanxiaoha.framework.biz.operationlog.aspect.ApiOperationLog;
+import com.quanxiaoha.framework.common.response.PageResponse;
 import com.quanxiaoha.framework.common.response.Response;
 import com.quanxiaoha.xiaohashu.note.biz.model.vo.*;
 import com.quanxiaoha.xiaohashu.note.biz.service.NoteService;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 笔记
@@ -53,6 +56,12 @@ public class NoteController {
         return noteService.visibleOnlyMe(updateNoteVisibleOnlyMeReqVO);
     }
 
+    @PostMapping("/visible/public")
+    @ApiOperationLog(description = "笔记设为公开可见")
+    public Response<?> visiblePublic(@RequestBody @Validated UpdateNoteVisiblePublicReqVO updateNoteVisiblePublicReqVO) {
+        return noteService.visiblePublic(updateNoteVisiblePublicReqVO);
+    }
+
     @PostMapping("/top")
     @ApiOperationLog(description = "笔记置顶/取消置顶")
     public Response<?> topNote(@RequestBody @Validated TopNoteReqVO topNoteReqVO) {
@@ -81,6 +90,30 @@ public class NoteController {
     @ApiOperationLog(description = "取消收藏笔记")
     public Response<?> unCollectNote(@Validated @RequestBody UnCollectNoteReqVO unCollectNoteReqVO) {
         return noteService.unCollectNote(unCollectNoteReqVO);
+    }
+
+    @PostMapping(value = "/list/publish")
+    @ApiOperationLog(description = "分页查询用户发布的笔记")
+    public PageResponse<FindNoteListItemRspVO> findPublishNoteList(@Validated @RequestBody FindUserNoteListReqVO findUserNoteListReqVO) {
+        return noteService.findPublishNoteList(findUserNoteListReqVO);
+    }
+
+    @PostMapping(value = "/list/collect")
+    @ApiOperationLog(description = "分页查询用户收藏的笔记")
+    public PageResponse<FindNoteListItemRspVO> findCollectNoteList(@Validated @RequestBody FindUserNoteListReqVO findUserNoteListReqVO) {
+        return noteService.findCollectNoteList(findUserNoteListReqVO);
+    }
+
+    @PostMapping(value = "/list/like")
+    @ApiOperationLog(description = "分页查询用户点赞的笔记")
+    public PageResponse<FindNoteListItemRspVO> findLikeNoteList(@Validated @RequestBody FindUserNoteListReqVO findUserNoteListReqVO) {
+        return noteService.findLikeNoteList(findUserNoteListReqVO);
+    }
+
+    @PostMapping(value = "/liked/status")
+    @ApiOperationLog(description = "批量查询当前用户点赞状态")
+    public Response<List<String>> findLikedNoteIds(@Validated @RequestBody FindNoteLikedStatusReqVO findNoteLikedStatusReqVO) {
+        return noteService.findLikedNoteIds(findNoteLikedStatusReqVO);
     }
 
 }

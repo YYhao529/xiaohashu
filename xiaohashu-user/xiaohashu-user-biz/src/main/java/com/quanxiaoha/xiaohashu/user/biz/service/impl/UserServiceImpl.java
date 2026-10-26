@@ -168,6 +168,13 @@ public class UserServiceImpl implements UserService {
             // 更新用户信息
             userDO.setUpdateTime(LocalDateTime.now());
             userDOMapper.updateByPrimaryKeySelective(userDO);
+
+            // 清理用户信息缓存（本地 Caffeine + Redis）
+            // 注意：不清缓存的话，findById / findByIds 会一直返回更新前的旧数据
+            Long userId = userDO.getId();
+            LOCAL_CACHE.invalidate(userId);
+            redisTemplate.delete(RedisKeyConstants.buildUserInfoKey(userId));
+            log.info("==> 用户信息已更新，清理缓存，userId: {}", userId);
         }
         return Response.success();
     }
@@ -331,6 +338,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(userDO.getNickname())
                 .avatar(userDO.getAvatar())
                 .introduction(userDO.getIntroduction())
+                .backgroundImg(userDO.getBackgroundImg())
                 .build();
 
         // 异步将用户信息存入 Redis 缓存，提升响应速度
@@ -411,6 +419,7 @@ public class UserServiceImpl implements UserService {
                             .nickname(userDO.getNickname())
                             .avatar(userDO.getAvatar())
                             .introduction(userDO.getIntroduction())
+                            .backgroundImg(userDO.getBackgroundImg())
                             .build())
                     .collect(Collectors.toList());
 

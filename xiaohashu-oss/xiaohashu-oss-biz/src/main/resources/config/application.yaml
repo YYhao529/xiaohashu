@@ -1,5 +1,13 @@
 server:
   port: 8081 # 项目启动的端口
 
+spring:
+  servlet:
+    multipart:
+      # 上传大小限制：图片单张最大 10MB（前端限制），视频给足余量
+      # 不配置时默认只有 1MB，大图/视频会被 FileSizeLimitExceededException 拒绝
+      max-file-size: 200MB
+      max-request-size: 210MB
+
 storage:
   type: aliyun  # 对象存储类型

@@ -113,4 +113,24 @@
     update t_note_collection set `status` = #{status}, create_time = #{createTime}
     where user_id = #{userId} and note_id = #{noteId} and `status` = 1
   </update>
+  <select id="selectCountByUserId" resultType="int">
+    select count(1)
+    from t_note_collection c
+    inner join t_note n on n.id = c.note_id
+    where c.user_id = #{userId,jdbcType=BIGINT}
+      and c.`status` = 1
+      and n.`status` = 1
+      and (n.visible = 0 or n.creator_id = #{currentUserId,jdbcType=BIGINT})
+  </select>
+  <select id="selectPageByUserId" resultMap="BaseResultMap">
+    select c.id, c.user_id, c.note_id, c.create_time, c.`status`
+    from t_note_collection c
+    inner join t_note n on n.id = c.note_id
+    where c.user_id = #{userId,jdbcType=BIGINT}
+      and c.`status` = 1
+      and n.`status` = 1
+      and (n.visible = 0 or n.creator_id = #{currentUserId,jdbcType=BIGINT})
+    order by c.create_time desc
+    limit #{start,jdbcType=BIGINT}, #{limit,jdbcType=BIGINT}
+  </select>
 </mapper>

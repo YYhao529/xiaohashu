@@ -32,4 +32,9 @@ public class UpdateNoteReqVO {
     private String content;
 
     private Long topicId;
+
+    /**
+     * 话题名称（推荐，用户直接填名称；话题不存在时自动创建）
+     */
+    private String topicName;
 }

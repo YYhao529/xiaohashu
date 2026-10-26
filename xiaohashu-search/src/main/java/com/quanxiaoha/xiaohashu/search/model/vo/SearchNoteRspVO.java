@@ -27,6 +27,16 @@ public class SearchNoteRspVO {
     private String cover;
 
     /**
+     * 笔记类型：0 图文，1 视频
+     */
+    private Integer type;
+
+    /**
+     * 视频地址（视频笔记用于列表内预览）
+     */
+    private String videoUri;
+
+    /**
      * 标题
      */
     private String title;
