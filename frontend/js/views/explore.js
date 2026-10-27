@@ -41,20 +41,35 @@ export default {
           </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
-          <div class="hero-stack">
-            <div class="stack-card">
-              <div class="stack-cover"></div>
-              <div class="stack-foot"><span class="dot"></span><span class="lines"><span class="line"></span><span class="line short"></span></span></div>
-            </div>
-            <div class="stack-card">
-              <div class="stack-cover"></div>
-              <div class="stack-foot"><span class="dot"></span><span class="lines"><span class="line"></span><span class="line short"></span></span></div>
-            </div>
-            <div class="stack-card">
-              <div class="stack-cover"></div>
-              <div class="stack-foot"><span class="dot"></span><span class="lines"><span class="line"></span><span class="line short"></span></span></div>
-            </div>
+          <span class="hv-aura"></span>
+
+          <div class="hv-waves">
+            <span></span><span></span><span></span><span></span>
           </div>
+
+          <div class="hv-search">
+            <span class="hv-search-glow"></span>
+            <span class="hv-search-icon">${icons.search()}</span>
+          </div>
+
+          <div class="hv-cards">
+            <span class="hv-card hv-card--1"></span>
+            <span class="hv-card hv-card--2"></span>
+            <span class="hv-card hv-card--3"></span>
+            <span class="hv-card hv-card--4"></span>
+          </div>
+
+          <div class="hv-bubbles">
+            <span class="hv-bubble" style="--x: 2%; --y: 4%; --delay: 0s">手绘</span>
+            <span class="hv-bubble" style="--x: 56%; --y: -2%; --delay: 0.9s">摄影</span>
+            <span class="hv-bubble hv-bubble--sm" style="--x: 86%; --y: 20%; --delay: 1.4s">穿搭</span>
+            <span class="hv-bubble hv-bubble--sm" style="--x: 90%; --y: 52%; --delay: 0.4s">美食</span>
+            <span class="hv-bubble" style="--x: 50%; --y: 86%; --delay: 1.9s">生活记录</span>
+          </div>
+
+          <span class="hv-spark" style="--x: 14%; --y: 26%; --dur: 3.4s; --delay: 0s"></span>
+          <span class="hv-spark" style="--x: 44%; --y: 8%; --dur: 4.6s; --delay: 0.7s"></span>
+          <span class="hv-spark" style="--x: 78%; --y: 72%; --dur: 3.9s; --delay: 1.2s"></span>
         </div>
       </section>
 

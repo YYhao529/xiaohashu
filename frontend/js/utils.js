@@ -131,7 +131,8 @@ export function hashHue(text) {
   for (let i = 0; i < str.length; i += 1) {
     hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
   }
-  return hash % 360;
+  // 统一收敛到蓝紫区间（200°–280°），与整体配色协调，避免出现暖色系头像
+  return 200 + (hash % 80);
 }
 
 export function initials(name) {

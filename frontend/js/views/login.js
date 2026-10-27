@@ -30,6 +30,7 @@ export default {
           </a>
           <div class="auth-aside-body">
             <h1>记录生活，<br>也<em>发现同好</em>。</h1>
+            <p class="auth-aside-sub">分享你的兴趣瞬间</p>
           </div>
           <div class="auth-aside-foot">© 2026 小哈书</div>
         </aside>
