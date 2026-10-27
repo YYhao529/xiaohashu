@@ -18,6 +18,9 @@ export function escapeHtml(value) {
   );
 }
 
+/** 本机 MinIO 的绝对地址前缀，例如 http://127.0.0.1:9000/deepsea-xiaohashu/xxx.mp4 */
+const LOCAL_MINIO_RE = /^https?:\/\/(?:127\.0\.0\.1|localhost):9000\//i;
+
 /** 仅放行 http(s)、blob 图片与 data:image，避免 javascript: 注入 */
 export function safeUrl(value) {
   if (!value || typeof value !== 'string') return '';
@@ -25,8 +28,15 @@ export function safeUrl(value) {
   if (!raw) return '';
   if (raw.startsWith('blob:')) return raw;
   if (/^data:image\//i.test(raw)) return raw;
+
+  // 本机 MinIO 的历史地址统一走同源 /minio 代理：
+  // 这样内网穿透后远程访客也能加载图片/视频，同时规避 https 页面加载 http 资源的限制。
+  // file:// 直接打开时没有同源服务，保留原始绝对地址。
+  const normalized =
+    window.location.protocol === 'file:' ? raw : raw.replace(LOCAL_MINIO_RE, '/minio/');
+
   try {
-    const url = new URL(raw, window.location.href);
+    const url = new URL(normalized, window.location.href);
     if (url.protocol === 'http:' || url.protocol === 'https:') return url.href;
   } catch (err) {
     return '';

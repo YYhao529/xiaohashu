@@ -15,6 +15,7 @@
  *   GATEWAY_URL=http://127.0.0.1:8000
  *   SEARCH_URL=http://127.0.0.1:8092
  *   OSS_URL=http://127.0.0.1:8081
+ *   MINIO_URL=http://127.0.0.1:9000
  */
 
 const http = require('node:http');
@@ -30,6 +31,9 @@ const GATEWAY_URL = (process.env.GATEWAY_URL || 'http://127.0.0.1:8000').replace
 const SEARCH_URL = (process.env.SEARCH_URL || 'http://127.0.0.1:8092').replace(/\/+$/, '');
 const OSS_URL = (process.env.OSS_URL || 'http://127.0.0.1:8081').replace(/\/+$/, '');
 const COUNT_URL = (process.env.COUNT_URL || 'http://127.0.0.1:8090').replace(/\/+$/, '');
+// 本机 MinIO：历史数据里存的是 http://127.0.0.1:9000/xxx 绝对地址，
+// 通过 /minio 同源代理转发，内网穿透后远程访客也能加载到图片/视频
+const MINIO_URL = (process.env.MINIO_URL || 'http://127.0.0.1:9000').replace(/\/+$/, '');
 
 // 注意顺序：更长的前缀放前面不影响，因为这里按前缀匹配
 const ROUTES = [
@@ -40,6 +44,8 @@ const ROUTES = [
   { prefix: '/search', target: SEARCH_URL, name: 'search → search-service' },
   { prefix: '/file', target: OSS_URL, name: 'file → oss-service' },
   { prefix: '/count', target: COUNT_URL, name: 'count → count-service' },
+  // stripPrefix：把 /minio/a/b.mp4 转发成 http://127.0.0.1:9000/a/b.mp4
+  { prefix: '/minio', target: MINIO_URL, name: 'minio → object-storage', stripPrefix: true },
 ];
 
 const MIME = {
@@ -321,17 +327,18 @@ function probeService(urlString) {
 }
 
 async function handleHealth(req, res) {
-  const [gateway, search, oss, count] = await Promise.all([
+  const [gateway, search, oss, count, minio] = await Promise.all([
     probeService(GATEWAY_URL),
     probeService(SEARCH_URL),
     probeService(OSS_URL),
     probeService(COUNT_URL),
+    probeService(MINIO_URL),
   ]);
 
   sendJson(res, 200, {
     ok: true,
     timestamp: new Date().toISOString(),
-    targets: { gateway, search, oss, count },
+    targets: { gateway, search, oss, count, minio },
     routes: ROUTES.map((route) => ({
       prefix: route.prefix,
       target: route.target,
@@ -370,10 +377,14 @@ const server = http.createServer((req, res) => {
 
   const route = resolveRoute(pathname);
   if (route) {
+    // stripPrefix 的路由（如 /minio）需要把前缀去掉再转给目标服务
+    const forwardPath = route.stripPrefix
+      ? pathname.slice(route.prefix.length) || '/'
+      : pathname;
     console.log(
       `${color.cyan('→')} ${req.method} ${pathname} ${color.dim(`proxy ${route.target}`)}`
     );
-    proxyRequest(req, res, route.target, pathname, parsed.search);
+    proxyRequest(req, res, route.target, forwardPath, parsed.search);
     return;
   }
 
@@ -408,12 +419,13 @@ server.listen(PORT, HOST, () => {
     { label: '搜索服务', target: SEARCH_URL, prefixes: '/search' },
     { label: '文件服务', target: OSS_URL, prefixes: '/file' },
     { label: '计数服务', target: COUNT_URL, prefixes: '/count' },
+    { label: '对象存储', target: MINIO_URL, prefixes: '/minio' },
   ].forEach(({ label, target, prefixes }) => {
     console.log(`  ${prefixes.padEnd(34)} → ${label} ${color.dim(target)}`);
   });
   console.log(`${color.dim(line)}`);
   console.log(`  ${color.bold('提示')} 先启动 Nacos / MySQL / Redis / ES 等依赖与各微服务`);
-  console.log(`       网关 8000；搜索 8092；OSS 8081；计数 8090`);
+  console.log(`       网关 8000；搜索 8092；OSS 8081；计数 8090；MinIO 9000`);
   console.log(`       健康检查：${color.cyan(`http://${HOST}:${PORT}/__health`)}`);
   console.log(`       覆盖端口：PORT=5190 node server.js`);
   console.log(`${color.dim(`${line}\n`)}`);
